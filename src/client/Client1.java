@@ -1,10 +1,12 @@
+package client;
+
 import java.net.Socket;
 import java.io.PrintWriter;
 
 /**
  * 客户端：主要用于发送请求给服务器端，接收服务器端的响应
  */
-public class Client {
+public class Client1 {
     public static void main(String[] args) {
         System.out.println("This is Client");
 
@@ -23,10 +25,13 @@ public class Client {
                 // 1. 获取输出流
                 pw = new PrintWriter(clientSocket.getOutputStream());
                 // 2. 向服务器端发送数据
-                pw.write("Hello, Server");
-                // 本来写入的数据应该保存在缓冲区内，只有当执行flush的时候才会将缓冲区内的数据输出，
-                // 或者在流关闭的时候也会刷新缓冲区（除了字节流其他所有流都会保存在缓冲区内）
-                pw.flush();
+                while (true) {
+                    Thread.sleep(2 * 1000);
+                    pw.write("This is Client one\n");
+                    // 本来写入的数据应该保存在缓冲区内，只有当执行flush的时候才会将缓冲区内的数据输出，
+                    // 或者在流关闭的时候也会刷新缓冲区（除了字节流其他所有流都会保存在缓冲区内）
+                    pw.flush();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
