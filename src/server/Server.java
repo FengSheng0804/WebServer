@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
  * 服务器
  */
 public class Server {
-    public static void main(String[] args) {
+    public static void build(int port) {
         System.out.println("This is Server");
 
         // 提高至外部，以便能使用finally进行关闭
@@ -20,7 +20,7 @@ public class Server {
         // 由于ServerSocket构造器可能会产生异常，所以需要对异常处理
         try {
             // 创建服务端端口，绑定端口10000
-            serverSocket = new ServerSocket(10000);
+            serverSocket = new ServerSocket(port);
             System.out.println("Waiting for request");
 
             // 服务器端一直监听客户端请求，每次有请求就创建一个新的socket
