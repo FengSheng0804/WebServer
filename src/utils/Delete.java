@@ -1,11 +1,12 @@
 package utils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
 
 //清空所有javac编译生成的.class文件
 public class Delete {
-	public static void delete() {
-		String path = "../src";
+	public static void main(String[] args) {
+		String path = "src";
 		deleteFiles(path);
 		deleteSubFiles(path);
 	}

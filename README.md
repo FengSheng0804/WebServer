@@ -135,3 +135,6 @@ git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
 即可
+
+2. 当运行 Delete.java 的时候，如果产生了`错误: 找不到或无法加载主类 utils.Delete`的报错，是由于 JVM 会按照默认的类路径设置来查找类，可能不包含 Delete.java 所在目录，所以 JVM 无法找到它，因此会报找不到的错误。
+解决办法是：切换到 `src` 目录中，运行 `java -classpath . utils.Delete`。
