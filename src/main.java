@@ -1,4 +1,3 @@
-import utils.Delete;
 import server.Server;
 import client.Client;
 
@@ -8,17 +7,19 @@ public class main {
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Server.build(10000);
+                Server server = new Server(10000);
+                server.build();
             }
         });
         serverThread.start();
         // Æô¶¯¿Í»§¶Ë
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= 10; i++) {
             final int clientNumber = i;
             Thread clientThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Client.build("127.0.0.1", 10000, String.format("I'm client %d", clientNumber));
+                    Client client = new Client("127.0.0.1", 10000);
+                    client.build(String.format("I'm client %d", clientNumber));
                 }
             });
             clientThread.start();
