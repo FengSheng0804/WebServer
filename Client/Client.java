@@ -24,6 +24,8 @@ public class Client {
                 pw = new PrintWriter(clientSocket.getOutputStream());
                 // 2. 向服务器端发送数据
                 pw.write("Hello, Server");
+                // 本来写入的数据应该保存在缓冲区内，只有当执行flush的时候才会将缓冲区内的数据输出，
+                // 或者在流关闭的时候也会刷新缓冲区（除了字节流其他所有流都会保存在缓冲区内）
                 pw.flush();
             }
         } catch (Exception e) {
