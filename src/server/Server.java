@@ -17,21 +17,25 @@ public class Server {
 
     // 服务器socket启动的函数
     public void build() {
-        System.out.println("This is Server");
 
         // 提高至外部，以便能使用finally进行关闭
         ServerSocket serverSocket = null;
 
         // 由于ServerSocket构造器可能会产生异常，所以需要对异常处理
         try {
+            System.out.println("Server preparing");
+            long time_begin = System.currentTimeMillis();
+
             // 创建服务端端口，绑定端口
             serverSocket = new ServerSocket(this.port);
-            System.out.println("Waiting for request");
+            long time_end = System.currentTimeMillis();
+            System.out.println(
+                    String.format("Server is ready and waiting for request, cost: %d ms", time_end - time_begin));
 
             // 服务器端一直监听客户端请求，每次有请求就创建一个新的socket
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("New client connected\n");
+                // System.out.println("New client connected\n");
 
                 // 创建一个新的线程来处理客户端请求
                 new ClientHandler(clientSocket).start();
