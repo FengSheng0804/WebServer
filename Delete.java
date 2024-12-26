@@ -1,13 +1,12 @@
 import java.io.*;
-import javax.swing.*;
 
-//æ¸…ç©ºæ‰€æœ‰javacç¼–è¯‘ç”Ÿæˆçš„.classæ–‡ä»¶
+//Çå¿ÕËùÓĞjavac±àÒëÉú³ÉµÄ.classÎÄ¼ş
 public class Delete {
 	public static void main(String[] args) throws Exception {
 		// String path = JOptionPane.showInputDialog(null, "Input the path of the
 		// directory to delete .class files from:");
 
-		// æ‰€æœ‰åŒ…å«.classæ–‡ä»¶çš„ç›®å½•
+		// ËùÓĞ°üº¬.classÎÄ¼şµÄÄ¿Â¼
 		String[] paths = { "./", "./Server", "./Client" };
 
 		for (String p : paths) {
