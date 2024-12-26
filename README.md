@@ -126,3 +126,12 @@
    git config --global i18n.logoutputencoding utf-8
    export LESSCHARSET=utf-8
    ```
+
+### 遇到的报错
+
+1. 当出现could'nt connect to server时，输入
+```sh
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
+即可
