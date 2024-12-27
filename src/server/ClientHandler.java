@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.FileReader; 
 
 // 处理来自客户端的数据发送的类(继承自线程类，实现一个客户端能多线程接收多个客户端)
 class ClientHandler extends Thread {
@@ -38,7 +39,7 @@ class ClientHandler extends Thread {
 
             // 读取静态资源文件
             System.out.println(URL);
-            responseStaticResource(URL);
+            responseController(URL);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,44 +64,38 @@ class ClientHandler extends Thread {
     }
 
     // 读取静态资源文件：相当于是一个总控
-    private void responseStaticResource(String URL) {
-        // 读取静态资源文件：请求路径：web/index.html
-        String filePath = URL; // 用于调试程序
+    private void responseController(String URL) {
+        // 读取静态资源文件：请求路径：/web/index.html
+        String filePath = URL.startsWith("/") ? URL.substring(1) : URL;
 
         // 通过输入流读取文件
         try {
             String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
             // 判断content-type类型
             switch (fileExtension) {
-                // 文本类型：
-                case "htm":
-                case "html":
-                case "css":
-                case "csv":
-                case "txt":
-                case "js":
-                case "xml":
-                case "odt":
-                    responseText(filePath, fileExtension);
-                    break;
-                // 非文本类型：
                 case "7z":
                 case "avi":
                 case "bin":
                 case "bmp":
+                case "css":
+                case "csv":
                 case "doc":
                 case "docx":
                 case "exe":
                 case "gif":
                 case "gz":
+                case "htm":
+                case "html":
                 case "ico":
                 case "jar":
                 case "jpeg":
                 case "jpg":
+                case "js":
                 case "json":
                 case "mp3":
                 case "mp4":
                 case "mpeg":
+                case "odt":
                 case "pdf":
                 case "php":
                 case "png":
@@ -111,25 +106,24 @@ class ClientHandler extends Thread {
                 case "svg":
                 case "tar":
                 case "ttf":
+                case "txt":
                 case "webp":
                 case "woff":
                 case "woff2":
                 case "xls":
                 case "xlsx":
+                case "xml":
                 case "zip":
-                    responseNotText(filePath, fileExtension);
-                    break;
-                default:
-                    response404();
+                    responseStaticResource(filePath, fileExtension);
                     break;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            response404();
         }
     }
 
-    // 读取html/htm文件，需要外部处理异常
-    private void responseText(String filePath, String fileClass) throws IOException {
+    private void responseStaticResource(String filePath, String fileExtension) throws IOException {
         InputStream is = new FileInputStream(filePath);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
@@ -141,193 +135,54 @@ class ClientHandler extends Thread {
 
         byte[] fileBytes = baos.toByteArray();
 
-        String fileString;
-        switch (fileClass) {
-            case "htm":
-            case "html":
-                fileString = "text/html";
-                break;
-            case "css":
-                fileString = "text/css";
-                break;
-            case "csv":
-                fileString = "text/csv";
-                break;
-            case "txt":
-                fileString = "text/plain";
-                break;
-            case "js":
-                fileString = "text/javascript";
-                break;
-            default:
-                fileString = "text/plain";
-                break;
+        String content_type = getContentType(fileExtension);
+
+        if (content_type.startsWith("text")) {
+            // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
+            // 请求行：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
+            StringBuilder sb = new StringBuilder();
+            sb.append("HTTP/1.1 200 OK\n")
+                    .append("Content-Type:text/" + fileExtension + ";charset=utf-8\n\n");
+
+            // 通过输出流将文件写回到客户端
+            OutputStream os = clientSocket.getOutputStream();
+            os.write(sb.toString().getBytes());
+            os.write(fileBytes);
+            os.flush();
+        } else {
+            // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
+            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+            pw.println("HTTP/1.1 200 OK");
+            pw.println("Content-Type: " + content_type);
+            pw.println("Content-Length: " + fileBytes.length);
+            pw.println(); // 空行表示头部结束
+            pw.flush();
+
+            // 通过输出流将文件写回到客户端
+            OutputStream os = clientSocket.getOutputStream();
+            os.write(fileBytes);
+            os.flush();
         }
-
-        // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
-        // 请求行：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
-        StringBuilder sb = new StringBuilder();
-        sb.append("HTTP/1.1 200 OK\n")
-                .append("Content-Type:text/" + fileClass + ";charset=utf-8\n\n");
-
-        // 通过输出流将文件写回到客户端
-        OutputStream os = clientSocket.getOutputStream();
-        os.write(sb.toString().getBytes());
-        os.write(fileBytes);
-        os.flush();
-        logArea.append("=====Response HTML: " + filePath + " Successfully=====\n");
+        logArea.append("=====Response: " + content_type + ": " + filePath + " Successfully=====\n");
 
         // 关闭资源
         is.close();
         baos.close();
     }
 
-    // 读取png/jpeg/jpg文件，需要外部处理异常
-    private void responseNotText(String filePath, String fileClass) throws IOException {
-        // 读取图片文件
-        InputStream is = new FileInputStream(filePath);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int length;
-
-        while ((length = is.read(buffer)) != -1) {
-            baos.write(buffer, 0, length);
+    // 获取content-type类型
+    private String getContentType(String fileExtension) {
+        try (BufferedReader br = new BufferedReader(new FileReader("./server/data/content-type.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains(fileExtension)) {
+                    return line.split(":")[1].trim();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        byte[] imageBytes = baos.toByteArray();
-
-        // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
-        // 请求行：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
-
-        String fileString;
-        switch (fileClass) {
-            case "7z":
-                fileString = "application/x-7z-compressed";
-                break;
-            case "avi":
-                fileString = "video/x-msvideo";
-                break;
-            case "bin":
-                fileString = "application/octet-stream";
-                break;
-            case "bmp":
-                fileString = "image/bmp";
-                break;
-            case "doc":
-                fileString = "application/msword";
-                break;
-            case "docx":
-                fileString = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-                break;
-            case "exe":
-                fileString = "application/x-msdownload";
-                break;
-            case "gif":
-                fileString = "image/gif";
-                break;
-            case "gz":
-                fileString = "application/gzip";
-                break;
-            case "ico":
-                fileString = "image/vnd.microsoft.icon";
-                break;
-            case "jar":
-                fileString = "application/java-archive";
-                break;
-            case "jpeg":
-            case "jpg":
-                fileString = "image/jpeg";
-                break;
-            case "json":
-                fileString = "application/json";
-                break;
-            case "mp3":
-                fileString = "audio/mpeg";
-                break;
-            case "mp4":
-                fileString = "video/mp4";
-                break;
-            case "mpeg":
-                fileString = "video/mpeg";
-                break;
-            case "odt":
-                fileString = "application/vnd.oasis.opendocument.text";
-                break;
-            case "pdf":
-                fileString = "application/pdf";
-                break;
-            case "php":
-                fileString = "application/x-httpd-php";
-                break;
-            case "png":
-                fileString = "image/png";
-                break;
-            case "ppt":
-                fileString = "application/vnd.ms-powerpoint";
-                break;
-            case "pptx":
-                fileString = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-                break;
-            case "rar":
-                fileString = "application/vnd.rar";
-                break;
-            case "sh":
-                fileString = "application/x-sh";
-                break;
-            case "svg":
-                fileString = "image/svg+xml";
-                break;
-            case "tar":
-                fileString = "application/x-tar";
-                break;
-            case "ttf":
-                fileString = "font/ttf";
-                break;
-            case "webp":
-                fileString = "image/webp";
-                break;
-            case "woff":
-                fileString = "font/woff";
-                break;
-            case "woff2":
-                fileString = "font/woff2";
-                break;
-            case "xls":
-                fileString = "application/vnd.ms-excel";
-                break;
-            case "xlsx":
-                fileString = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                break;
-            case "xml":
-                fileString = "application/xml";
-                break;
-            case "zip":
-                fileString = "application/zip";
-                break;
-            default:
-                // 未知类型
-                fileString = "application/octet-stream";
-                break;
-        }
-
-        // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
-        PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
-        pw.println("HTTP/1.1 200 OK");
-        pw.println("Content-Type: " + fileString);
-        pw.println("Content-Length: " + imageBytes.length);
-        pw.println(); // 空行表示头部结束
-        pw.flush();
-
-        // 通过输出流将文件写回到客户端
-        OutputStream os = clientSocket.getOutputStream();
-        os.write(imageBytes);
-        os.flush();
-
-        logArea.append("=====Response Image: " + filePath + " Successfully=====\n");
-
-        // 关闭资源
-        is.close();
-        baos.close();
+        return "application/octet-stream"; // 默认的content_type类型是这个
     }
 
     // 404 Not Found
