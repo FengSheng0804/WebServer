@@ -19,13 +19,17 @@ public class Server extends JFrame {
     private ServerSocket serverSocket;
     private boolean isRunning;
 
-    // 带有初始化操作的构造函数
+    /**
+     * 带有初始化操作的构造函数。
+     */
     public Server(int port) {
         this.port = port;
         initializeGUI();
     }
 
-    // 初始化GUI界面
+    /**
+     * 初始化图形用户界面（GUI）。
+     */
     private void initializeGUI() {
         // 设置窗口标题、大小、关闭方式、布局
         setTitle("Server");
@@ -68,12 +72,18 @@ public class Server extends JFrame {
         });
     }
 
-    // 添加内容到日志区域
+    /**
+     * 将日志信息追加到日志区域。
+     *
+     * @param log 要追加的日志信息
+     */
     public void appendLog(String log) {
         logArea.append(log + "\n");
     }
 
-    // 启动服务器
+    /**
+     * 启动服务器的方法。
+     */
     private void startServer() {
         isRunning = true;
         startButton.setEnabled(false);
@@ -111,7 +121,15 @@ public class Server extends JFrame {
         }).start();
     }
 
-    // 停止服务器
+    /**
+     * 停止服务器的方法。
+     * 将 isRunning 标志设置为 false，启用 startButton 按钮，禁用 stopButton 按钮，并在 logArea 中追加
+     * 
+     * 
+     * "Server stopped" 消息。
+     * 如果 serverSocket 不为空，则尝试关闭 serverSocket。
+     * 如果在关闭 serverSocket 时发生 IOException，则在 logArea 中追加错误消息。
+     */
     private void stopServer() {
         isRunning = false;
         startButton.setEnabled(true);
