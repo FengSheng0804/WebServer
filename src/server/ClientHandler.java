@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
+
+import javax.swing.JTextArea;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -12,8 +15,10 @@ import java.io.PrintWriter;
 class ClientHandler extends Thread {
     private Socket clientSocket;
     private BufferedReader br;
+    private JTextArea logArea;
 
-    public ClientHandler(Socket clientSocket) {
+    public ClientHandler(Socket clientSocket, JTextArea logArea) {
+        this.logArea = logArea;
         this.clientSocket = clientSocket;
     }
 
@@ -28,12 +33,12 @@ class ClientHandler extends Thread {
             String requestLine = br.readLine(); // 请求行：GET /hello HTTP/1.1
             String URL = requestLine.split(" ")[1]; // 获取到请求资源的路径
 
-            // 返回响应
-            System.out.println("Request URL: " + URL);
-            if (URL.endsWith(".html") || URL.endsWith(".htm")) {
-                // 读取静态资源文件
-                responseStaticResource(URL);
-            }
+            // 使用Server中的appendLog方法添加到文本区域中
+            logArea.append("Request URL: " + URL + "\n");
+
+            // 读取静态资源文件
+            responseStaticResource(URL);
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -87,7 +92,7 @@ class ClientHandler extends Thread {
                 PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
                 pw.println("HTTP/1.1 404 Not Found");
                 pw.println("Content-Type:text/html;charset=utf-8\n\n");
-                pw.println("<html><body><h1>404 Not Found</h1></body></html>");
+                pw.println("<html><body><h1 style='text-align:center'>404 Not Found</h1></body></html>");
                 pw.flush();
             } catch (IOException ex) {
                 ex.printStackTrace();

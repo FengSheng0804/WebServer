@@ -3,54 +3,126 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * 服务器
  */
-public class Server {
-    private int port; // 端口号
+public class Server extends JFrame {
+    public JTextArea logArea;
+    private int port;
+    private JButton startButton;
+    private JButton stopButton;
+    private ServerSocket serverSocket;
+    private boolean isRunning;
 
-    // 服务器socket的构造函数
+    // 带有初始化操作的构造函数
     public Server(int port) {
         this.port = port;
+        initializeGUI();
     }
 
-    // 服务器socket启动的函数
-    public void build() {
+    // 初始化GUI界面
+    private void initializeGUI() {
+        // 设置窗口标题、大小、关闭方式、布局
+        setTitle("Server");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        // 提高至外部，以便能使用finally进行关闭
-        ServerSocket serverSocket = null;
+        // 添加日志区域
+        logArea = new JTextArea();
+        logArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(logArea);
+        add(scrollPane, BorderLayout.CENTER);
 
-        // 由于ServerSocket构造器可能会产生异常，所以需要对异常处理
-        try {
-            System.out.println("Server preparing");
-            long time_begin = System.currentTimeMillis();
+        // 添加按钮区域
+        JPanel panel = new JPanel();
+        startButton = new JButton("Start Server");
+        stopButton = new JButton("Stop Server");
+        stopButton.setEnabled(false);
 
-            // 创建服务端端口，绑定端口
-            serverSocket = new ServerSocket(this.port);
-            long time_end = System.currentTimeMillis();
-            System.out.println(
-                    String.format("Server is ready and waiting for request, cost: %d ms", time_end - time_begin));
+        // 添加按钮到面板
+        panel.add(startButton);
+        panel.add(stopButton);
+        add(panel, BorderLayout.SOUTH);
 
-            // 服务器端一直监听客户端请求，每次有请求就创建一个新的socket
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                // System.out.println("New client connected\n");
-
-                // 创建一个新的线程来处理客户端请求
-                new ClientHandler(clientSocket).start();
+        // 添加按钮事件监听startButton
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startServer();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            // ServerSocket是先开后关，clientSocket是先关后开
-            // 关闭serverSocket
-            if (serverSocket != null) {
+        });
+
+        // 添加按钮事件监听stopButton
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stopServer();
+            }
+        });
+    }
+
+    // 添加内容到日志区域
+    public void appendLog(String log) {
+        logArea.append(log + "\n");
+    }
+
+    // 启动服务器
+    private void startServer() {
+        isRunning = true;
+        startButton.setEnabled(false);
+        stopButton.setEnabled(true);
+        logArea.append("Server preparing\n");
+
+        new Thread(new Runnable() {
+            // 重写run方法
+            @Override
+            public void run() {
                 try {
-                    serverSocket.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    long timeBegin = System.currentTimeMillis();
+                    serverSocket = new ServerSocket(port);
+                    long timeEnd = System.currentTimeMillis();
+                    logArea.append(String.format("Server is ready and waiting for request, cost: %d ms\n",
+                            timeEnd - timeBegin));
+
+                    // 循环监听客户端连接
+                    while (isRunning) {
+                        Socket clientSocket = serverSocket.accept();
+                        logArea.append("New client connected\n");
+                        new ClientHandler(clientSocket, logArea).start();
+                    }
+                } catch (IOException e) {
+                    logArea.append("Error: " + e.getMessage() + "\n");
+                } finally {
+                    if (serverSocket != null) {
+                        try {
+                            serverSocket.close();
+                        } catch (IOException e) {
+                            logArea.append("Error closing server socket: " + e.getMessage() + "\n");
+                        }
+                    }
                 }
+            }
+        }).start();
+    }
+
+    // 停止服务器
+    private void stopServer() {
+        isRunning = false;
+        startButton.setEnabled(true);
+        stopButton.setEnabled(false);
+        logArea.append("Server stopped\n");
+
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                logArea.append("Error closing server socket: " + e.getMessage() + "\n");
             }
         }
     }
