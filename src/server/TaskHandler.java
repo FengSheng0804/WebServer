@@ -16,16 +16,16 @@ import java.io.FileReader;
 
 /**
  * 
- * ClientHandler类继承自Thread类，负责处理与服务器的单个客户端连接。
+ * TaskHandler类继承自Thread类，负责处理与服务器的单个客户端连接。
  * 它读取客户端请求，处理请求，并将适当的响应发送回客户端。
  * 它还记录请求和响应信息。
  */
-class ClientHandler extends Thread {
+class TaskHandler extends Thread {
     private Socket clientSocket;
     private BufferedReader br;
     private JTextArea logArea;
 
-    public ClientHandler(Socket clientSocket, JTextArea logArea) {
+    public TaskHandler(Socket clientSocket, JTextArea logArea) {
         this.logArea = logArea;
         this.clientSocket = clientSocket;
     }
@@ -33,10 +33,9 @@ class ClientHandler extends Thread {
     @Override
     public void run() {
         try {
-            // 通过输入流获取客户端发送的数据
             InputStream is = clientSocket.getInputStream();
+            // 通过输入流获取客户端发送的数据
             br = new BufferedReader(new InputStreamReader(is));
-
             // 输出用户的请求信息（一个超长字符串，为了防止出现多线程引起的不可再现性）并记录第一个line的数据
             StringBuilder requestBuilder = new StringBuilder();
             String line;
@@ -49,6 +48,7 @@ class ClientHandler extends Thread {
             }
             String requestString = requestBuilder.toString();
 
+            // 以下均为GET请求的处理
             // 处理请求头，方便后续使用
             Map<String, String> headers = processHeaders(requestString);
             // 获取到请求资源的路径
@@ -269,5 +269,24 @@ class ClientHandler extends Thread {
             }
         }
         return headers;
+    }
+
+    /**
+     * 将输入流的数据转发到输出流，仅用来传递数据，类似于一个数据管道。
+     *
+     * @param input  输入流，从中读取数据
+     * @param output 输出流，将数据写入其中
+     */
+    private void forwardData(InputStream input, OutputStream output) {
+        byte[] buffer = new byte[1024];
+        int length;
+        try {
+            while ((length = input.read(buffer)) != -1) {
+                output.write(buffer, 0, length);
+                output.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
