@@ -1,0 +1,237 @@
+// out: ../css/
+
+@import "./base";
+
+@rootSize: 3.75vw;
+
+body {
+  background-color: rgb(249,250,251);
+}
+
+/* 头部区域 */
+body header {
+  /* sticky和fixed有一样的效果，但同时会产生占位 */
+  position: sticky;
+  /* 不加z-index:1改变显示顺序会出现不在最上层显示的情况 */
+  z-index: 1;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: (50 / @rootSize);
+  width: (375 / @rootSize);
+  background-color: #fff;
+  padding: 0 (15 / @rootSize);
+
+  .left img {
+    height: (50 / @rootSize);
+  }
+  
+  a {
+    display: block;
+    background-color: rgb(255, 227, 27);
+    width: (80 / @rootSize);
+    height: (30 / @rootSize);
+    border-radius: (15 / @rootSize);
+
+    line-height: (30 / @rootSize);
+    font-size: (14 / @rootSize);
+    text-align: center;
+    color: rgb(51, 51, 51);
+  }
+}
+
+/* 搜索区域 */
+.search {
+  position: relative;
+  padding: (10 / @rootSize) (15 / @rootSize);
+
+
+  input {
+    width: (345 / @rootSize);
+    height: (32 / @rootSize);
+    padding-left: (128 / @rootSize);
+    box-sizing: border-box;
+    background-color: rgb(242, 244, 245);
+    border: 0;
+    outline: 0;
+    border-radius: (16 / @rootSize);
+
+    line-height: (32 / @rootSize);
+
+    &::placeholder {
+      font-family: -apple-system, BlinkMacSystemFont, PingFangSC-Regular, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: (14 / @rootSize);
+      font-weight: 400;
+      color: rgb(161, 164, 179);
+    }
+  }
+
+  span {
+    position: absolute;
+    top: (18 / @rootSize);
+    left: (121 / @rootSize);
+    font-size: (16 / @rootSize);
+    color: rgb(161, 164, 179);
+  }
+}
+
+/* banner区域 */
+.banner {
+  padding: 0 (15 / @rootSize);
+  height: (108 / @rootSize);
+  overflow: hidden;
+  ul {
+    li {
+      width: (345 / @rootSize);
+      height: (108 / @rootSize);
+      border-radius: 1.33333vw;
+      overflow: hidden;
+      img {
+        width: 100%;
+        height: 100%;
+        /* 为了防止图片的比例发生改变，使用一个新属性缩放图片，和属性和背景图的缩放类似 */
+        /* 这个属性会导致图片在边缘处可能会有部分被遮盖，但可以使图片的比例不发生改变 */
+        object-fit: cover;
+      }
+    }
+  }
+}
+
+/* title公共样式区域 */
+.list {
+  padding: (20 / @rootSize) (15 / @rootSize) 0 (15 / @rootSize);
+}
+
+.title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: (16 / @rootSize);
+
+  h3 {
+    line-height: (26 / @rootSize);
+    font-size: (20 / @rootSize);
+    color: #333;
+  }
+  a {
+    font-size: (12 / @rootSize);
+    color: rgb(161, 164, 179);
+  }
+}
+
+.body {
+  li {
+    display: flex;
+    background-color: #fff;
+    border-radius: (10 / @rootSize);
+    margin-bottom: (16 / @rootSize);
+
+    .left {
+      width: (105 / @rootSize);
+      height: (105 / @rootSize);
+      margin-right: (20 / @rootSize);
+
+      img {
+      width: 100%;
+      height: 100%;
+      border-radius: (10 / @rootSize);
+      }
+    }
+    .right {
+
+      h4 {
+        height: (28 / @rootSize);
+        font-size: (14 / @rootSize);
+        font-weight: normal;
+        color: #333;
+        line-height: (28 / @rootSize);
+      }
+      p {
+        height: (21 / @rootSize);
+        font-size: (12 / @rootSize);
+        color: rgb(161, 164, 179);
+        line-height: (21 / @rootSize);
+      }
+    }
+  }
+}
+
+/* 推荐歌单区域 */
+.recommend {
+  padding: 0 (15 / @rootSize) 0 (15 / @rootSize);
+
+  .body ul{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    li {
+      width: (105 / @rootSize);
+      height: (143 / @rootSize);
+
+      img {
+        width: (105 / @rootSize);
+        height: (105 / @rootSize);
+        border-radius: (10 / @rootSize);
+      }
+      .pic {
+        position: relative;
+      }
+
+      .cover {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: (70 / @rootSize);
+        height: (28 / @rootSize);
+        background-color: rgba(0,0,0,0.8);
+        border-radius: 0 (10 / @rootSize) 0 (10 / @rootSize);
+        
+        font-size: (14 / @rootSize);
+        text-align: center;
+        color: #fff;
+        line-height: (28 / @rootSize);
+      }
+    }
+  }
+
+
+
+}
+
+/* download区域 */
+.download {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 (15/ @rootSize);
+  padding: 0 (10 / @rootSize) 0 (15 / @rootSize);
+  border-radius: (22 / @rootSize);
+  position: fixed;
+  bottom: (30 / @rootSize);
+  background-color: #fff;
+  height: (45 / @rootSize);
+  width: (345 / @rootSize);
+  
+  .left {
+    display: flex;
+    align-items: center;
+
+    img {
+    width: (36 / @rootSize);
+    margin-right: (10 / @rootSize);
+    }  
+  }
+
+  span {
+    width: (32 / @rootSize);
+    height: (32 / @rootSize);
+    line-height: (32 / @rootSize);
+    background-color: rgb(242, 243, 245);
+    border-radius: 50%;
+    
+    color: rgb(51, 51, 51);
+    text-align: center;
+  }
+}

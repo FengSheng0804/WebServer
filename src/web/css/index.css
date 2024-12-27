@@ -1,0 +1,226 @@
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+body,
+ul,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  padding: 0;
+  margin: 0;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, PingFangSC-Regular, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+img {
+  vertical-align: bottom;
+}
+ul {
+  list-style-type: none;
+}
+a {
+  color: #333;
+  text-decoration: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+body {
+  background-color: #f9fafb;
+}
+/* 头部区域 */
+body header {
+  /* sticky和fixed有一样的效果，但同时会产生占位 */
+  position: sticky;
+  /* 不加z-index:1改变显示顺序会出现不在最上层显示的情况 */
+  z-index: 1;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 13.33333333vw;
+  width: 100vw;
+  background-color: #fff;
+  padding: 0 4vw;
+}
+body header .left img {
+  height: 13.33333333vw;
+}
+body header a {
+  display: block;
+  background-color: #ffe31b;
+  width: 21.33333333vw;
+  height: 8vw;
+  border-radius: 4vw;
+  line-height: 8vw;
+  font-size: 3.73333333vw;
+  text-align: center;
+  color: #333333;
+}
+/* 搜索区域 */
+.search {
+  position: relative;
+  padding: 2.66666667vw 4vw;
+}
+.search input {
+  width: 92vw;
+  height: 8.53333333vw;
+  padding-left: 34.13333333vw;
+  box-sizing: border-box;
+  background-color: #f2f4f5;
+  border: 0;
+  outline: 0;
+  border-radius: 4.26666667vw;
+  line-height: 8.53333333vw;
+}
+.search input::placeholder {
+  font-family: -apple-system, BlinkMacSystemFont, PingFangSC-Regular, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 3.73333333vw;
+  font-weight: 400;
+  color: #a1a4b3;
+}
+.search span {
+  position: absolute;
+  top: 4.8vw;
+  left: 32.26666667vw;
+  font-size: 4.26666667vw;
+  color: #a1a4b3;
+}
+/* banner区域 */
+.banner {
+  padding: 0 4vw;
+  height: 28.8vw;
+  overflow: hidden;
+}
+.banner ul li {
+  width: 92vw;
+  height: 28.8vw;
+  border-radius: 1.33333vw;
+  overflow: hidden;
+}
+.banner ul li img {
+  width: 100%;
+  height: 100%;
+  /* 为了防止图片的比例发生改变，使用一个新属性缩放图片，和属性和背景图的缩放类似 */
+  /* 这个属性会导致图片在边缘处可能会有部分被遮盖，但可以使图片的比例不发生改变 */
+  object-fit: cover;
+}
+/* title公共样式区域 */
+.list {
+  padding: 5.33333333vw 4vw 0 4vw;
+}
+.title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4.26666667vw;
+}
+.title h3 {
+  line-height: 6.93333333vw;
+  font-size: 5.33333333vw;
+  color: #333;
+}
+.title a {
+  font-size: 3.2vw;
+  color: #a1a4b3;
+}
+.body li {
+  display: flex;
+  background-color: #fff;
+  border-radius: 2.66666667vw;
+  margin-bottom: 4.26666667vw;
+}
+.body li .left {
+  width: 28vw;
+  height: 28vw;
+  margin-right: 5.33333333vw;
+}
+.body li .left img {
+  width: 100%;
+  height: 100%;
+  border-radius: 2.66666667vw;
+}
+.body li .right h4 {
+  height: 7.46666667vw;
+  font-size: 3.73333333vw;
+  font-weight: normal;
+  color: #333;
+  line-height: 7.46666667vw;
+}
+.body li .right p {
+  height: 5.6vw;
+  font-size: 3.2vw;
+  color: #a1a4b3;
+  line-height: 5.6vw;
+}
+/* 推荐歌单区域 */
+.recommend {
+  padding: 0 4vw 0 4vw;
+}
+.recommend .body ul {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.recommend .body ul li {
+  width: 28vw;
+  height: 38.13333333vw;
+}
+.recommend .body ul li img {
+  width: 28vw;
+  height: 28vw;
+  border-radius: 2.66666667vw;
+}
+.recommend .body ul li .pic {
+  position: relative;
+}
+.recommend .body ul li .cover {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 18.66666667vw;
+  height: 7.46666667vw;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 0 2.66666667vw 0 2.66666667vw;
+  font-size: 3.73333333vw;
+  text-align: center;
+  color: #fff;
+  line-height: 7.46666667vw;
+}
+/* download区域 */
+.download {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 4vw;
+  padding: 0 2.66666667vw 0 4vw;
+  border-radius: 5.86666667vw;
+  position: fixed;
+  bottom: 8vw;
+  background-color: #fff;
+  height: 12vw;
+  width: 92vw;
+}
+.download .left {
+  display: flex;
+  align-items: center;
+}
+.download .left img {
+  width: 9.6vw;
+  margin-right: 2.66666667vw;
+}
+.download span {
+  width: 8.53333333vw;
+  height: 8.53333333vw;
+  line-height: 8.53333333vw;
+  background-color: #f2f3f5;
+  border-radius: 50%;
+  color: #333333;
+  text-align: center;
+}
