@@ -29,13 +29,14 @@ public class Server extends JFrame {
     private void initializeGUI() {
         // 设置窗口标题、大小、关闭方式、布局
         setTitle("Server");
-        setSize(400, 300);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // 添加日志区域
         logArea = new JTextArea();
         logArea.setEditable(false);
+        logArea.setFont(new Font("Serif", Font.PLAIN, 20));
         JScrollPane scrollPane = new JScrollPane(logArea);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -93,7 +94,6 @@ public class Server extends JFrame {
                     // 循环监听客户端连接
                     while (isRunning) {
                         Socket clientSocket = serverSocket.accept();
-                        logArea.append("New client connected\n");
                         new ClientHandler(clientSocket, logArea).start();
                     }
                 } catch (IOException e) {
