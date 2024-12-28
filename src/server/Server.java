@@ -99,13 +99,14 @@ public class Server extends JFrame {
                     long timeBegin = System.currentTimeMillis();
                     serverSocket = new ServerSocket(port);
                     long timeEnd = System.currentTimeMillis();
+                    logArea.append("Server started on port " + port + "\n");
                     logArea.append(String.format("Server is ready and waiting for request, cost: %d ms\n",
                             timeEnd - timeBegin));
 
                     // 循环监听客户端连接
                     while (isRunning) {
                         Socket clientSocket = serverSocket.accept();
-                        new TaskHandler(clientSocket, logArea).start();
+                        new ServerTaskHandler(clientSocket, logArea).start();
                     }
                 } catch (IOException e) {
                     logArea.append("Error: " + e.getMessage() + "\n");
@@ -125,6 +126,11 @@ public class Server extends JFrame {
     /**
      * 停止服务器的方法。
      * 将 isRunning 标志设置为 false，启用 startButton 按钮，禁用 stopButton 按钮，并在 logArea 中追加
+     * 
+     * 
+     * 
+     * 
+     * 
      * "Server stopped" 消息。
      * 如果 serverSocket 不为空，则尝试关闭 serverSocket。
      * 如果在关闭 serverSocket 时发生 IOException，则在 logArea 中追加错误消息。

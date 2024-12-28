@@ -20,12 +20,12 @@ import java.io.FileReader;
  * 它读取客户端请求，处理请求，并将适当的响应发送回客户端。
  * 它还记录请求和响应信息。
  */
-class TaskHandler extends Thread {
+class ServerTaskHandler extends Thread {
     private Socket clientSocket;
     private BufferedReader br;
     private JTextArea logArea;
 
-    public TaskHandler(Socket clientSocket, JTextArea logArea) {
+    public ServerTaskHandler(Socket clientSocket, JTextArea logArea) {
         this.logArea = logArea;
         this.clientSocket = clientSocket;
     }
