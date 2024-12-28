@@ -52,6 +52,7 @@ class ServerTaskHandler extends Thread {
             // 处理请求头，方便后续使用
             Map<String, String> headers = processHeaders(requestString);
             // 获取到请求资源的路径
+            // System.out.println(requestLine);
             String URL = requestLine.split(" ")[1];
 
             // 使用Server中的appendLog方法添加到文本区域中
@@ -95,8 +96,8 @@ class ServerTaskHandler extends Thread {
      */
     private void responseController(String URL) {
         // 读取静态资源文件：请求路径：/web/index.html
-        String filePath = URL.substring(1); // 运行用
-        // String filePath = "src/" + URL.substring(1); //调试用
+        // String filePath = URL.substring(1); // 运行用
+        String filePath = "src/" + URL.substring(1); // 调试用
 
         // 通过输入流读取文件
         try {
@@ -161,6 +162,7 @@ class ServerTaskHandler extends Thread {
      * @throws IOException 如果在读取文件或写入客户端时发生 I/O 错误
      */
     private void responseStaticResource(String filePath, String fileExtension) throws IOException {
+        // 初始化
         InputStream is = new FileInputStream(filePath);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
@@ -217,10 +219,12 @@ class ServerTaskHandler extends Thread {
      * @return 对应的Content-Type类型
      */
     private String getContentType(String fileExtension) {
-        String fileName = "./server/data/content-type.txt"; // 运行用
-        // String fileName = "./src/server/data/content-type.txt"; //调试用
+        // String fileName = "./data/content-type.txt"; // 运行用
+        String fileName = "./src/data/content-type.txt"; // 调试用
+
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
+
             while ((line = br.readLine()) != null) {
                 if (line.contains(fileExtension)) {
                     return line.split(":")[1].trim();
@@ -261,7 +265,9 @@ class ServerTaskHandler extends Thread {
      */
     public Map<String, String> processHeaders(String requestString) {
         Map<String, String> headers = new HashMap<>();
+
         String[] lines = requestString.split("\r\n");
+
         for (String line : lines) {
             String[] parts = line.split(": ", 2);
             if (parts.length == 2) {
@@ -269,24 +275,5 @@ class ServerTaskHandler extends Thread {
             }
         }
         return headers;
-    }
-
-    /**
-     * 将输入流的数据转发到输出流，仅用来传递数据，类似于一个数据管道。
-     *
-     * @param input  输入流，从中读取数据
-     * @param output 输出流，将数据写入其中
-     */
-    private void forwardData(InputStream input, OutputStream output) {
-        byte[] buffer = new byte[1024];
-        int length;
-        try {
-            while ((length = input.read(buffer)) != -1) {
-                output.write(buffer, 0, length);
-                output.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

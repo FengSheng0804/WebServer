@@ -1,5 +1,5 @@
-import server.ProxyServer;
 import server.Server;
+import server.proxyServer.ProxyServer;
 
 public class main {
     /**
