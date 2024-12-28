@@ -1,0 +1,303 @@
+/* 网站中各个页面相同的样式 */
+
+/* 版心居中 */
+.wrapper {
+  width: 1240px;
+  margin: 0 auto;
+}
+
+/* ================================================== */
+/* 快捷导航区域 */
+.shortcut {
+  height: 52px;
+  background-color: #333;
+}
+
+.shortcut .wrapper {
+  display: flex;
+  /* 主轴对齐方式：右对齐 */
+  justify-content: flex-end;
+  height: 52px;
+}
+
+.shortcut ul {
+  display: flex;
+  justify-content: space-between;
+  /* 文字垂直居中 */
+  line-height: 52px;
+}
+
+/* 对a标签添加边框线 */
+.shortcut ul li a{
+  padding-left: 15px;
+  padding-right: 15px;
+  border-right: 1px solid #999;
+  color: #fff;
+}
+
+/* 删除最后一个标签的边框线 */
+.shortcut ul li:last-child a {
+  border: 0;
+}
+
+/* 改变第一个标签的颜色 */
+.shortcut ul a:hover,
+.shortcut ul .login {
+  color: #5EB69C;
+}
+
+/* 给手机的span标签添加右边距 */
+.shortcut ul li .iconfont {
+  margin-right: 4px;
+}
+
+/* ================================================== */
+/* 头部区域 */
+.header {
+  display: flex;
+  margin-top: 22px;
+  margin-bottom: 22px;
+  height: 88px;
+}
+
+/* logo：可能后面还会用到，所以没有协程式.header的子级 */
+.logo {
+  width: 200px;
+  height: 88px;
+  margin-right: 40px;
+}
+
+.logo a {
+  display: block;
+  width: 200px;
+  height: 88px;
+  background-image: url(../images/logo.png);
+  font-size: 0;
+}
+
+/* 导航 */
+.header .nav {
+  margin-right: 27px;
+}
+.header .nav ul{
+  display: flex;
+  justify-content: space-between;
+}
+
+.header .nav ul li {
+  margin-right: 48px;
+
+  font-size: 16px;
+  line-height: 88px;
+  color: #333;
+}
+
+.header .nav .active,
+.header .nav a:hover {
+  color: #5EB69C;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #5EB69C;
+}
+
+/* 搜索 */
+.header .search {
+  display: flex;
+  margin-right: 45px;
+  width: 170px;
+  height: 34px;
+  border-bottom: 2px solid #f4f4f4;
+
+  align-self: center;
+  font-size: 16px;
+}
+
+.header .search .iconfont {
+  margin-right: 8px;
+
+  font-size: 20px;
+  color: #ccc;
+}
+
+.header .search input {
+  /* 这里写width: 0是为了重置input标签的宽度
+     因为input标签有默认的宽度，会导致flex: 1不生效
+     因此可以先重置width后再使用flex: 1；
+     或者也可以只写width: 100% */
+  width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+}
+
+.header .search input::placeholder {
+  font-size: 16px;
+  color: #ccc;
+}
+
+/* 购物车 */
+.header .cart {
+  position: relative;
+  margin-top: 22px;
+  cursor: pointer;
+}
+
+.header .cart .iconfont {
+  font-size: 24px;
+}
+
+.header .cart i {
+  position: absolute;
+  top: -2px;
+  /* 这里使用左对齐是因为：当数字位数增大的时候，如果是右对齐，会导致文字向左边延伸，不符合习惯 */
+  left: 15px;
+  padding: 0 6px;
+  height: 15px;
+  border-radius: 8px;
+  background-color: #E26237;
+
+  font-size: 14px;
+  color: #FFFEFE;
+  line-height: 15px;
+}
+
+/* ================================================== */
+/* 尾部区域 */
+/* 服务区域 */
+.footer {
+  height: 581.5px;
+  background-color: #F5F5F5;
+}
+
+.footer .service {
+  padding: 60px 96px;
+  border-bottom: 1px solid #E8E8E8;
+}
+
+.footer .service ul {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer .service ul li {
+  display: flex;
+  width: 190px;
+}
+
+.footer .service h5 {
+  margin-right: 20px;
+  width: 58px;
+  height: 58px;
+  background-image: url(../images/sprite.png);
+  background-position: 0 0;
+}
+
+.footer .service h5:nth-child(2) {
+  background-position: 0 -58px;
+}
+
+.footer .service h5:nth-child(3) {
+  background-position: 0 -116px;
+}
+
+.footer .service h5:nth-child(4) {
+  background-position: 0 -174px;
+}
+
+.footer .service strong {
+  color: #333;
+  font-size: 28px;
+  line-height: 58px;
+  font-weight: normal;
+}
+
+/* 帮助中心区域 */
+.footer .help {
+  display: flex;
+  justify-content: space-between;
+  height: 300px;
+  padding-top: 60px;
+}
+
+.footer .help .left {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer .help .left dl {
+  margin-right: 84px;
+}
+
+.footer .help .left dl:last-child {
+  margin-right: 0;
+}
+
+.footer .help .left dd {
+  margin-bottom: 30px;
+
+  font-size: 18px;
+}
+
+.footer .help .left dt,
+.footer .help .left dt a {
+  margin-bottom: 10.5px;
+
+  font-size: 16px;
+  color: #969696;
+}
+
+.footer .help .left .iconfont {
+  margin-left: 3px;
+
+  color: #6bbfae;
+  font-size: 16px;
+}
+
+.footer .help .right ul {
+  display: flex;
+}
+
+.footer .help .right ul li:first-child {
+  margin-right: 55px;
+}
+
+.footer .help .right img {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 10px;
+}
+
+.footer .help .right p {
+  text-align: center;
+  color: #969696;
+}
+
+/* 版权区域 */
+.footer .copyright {
+  flex: 1;
+
+  /* 文字的水平居中 */
+  text-align: center;
+}
+
+.footer .copyright ul {
+  /* 块元素的水平居中 */
+  margin: 0 auto;
+
+  display: flex;
+  width: 610px;
+}
+
+.footer .copyright li a{
+  padding: 0 10px;
+  border-right: 1px solid #A1A1A1;
+
+  color: #A1A1A1;
+}
+
+.footer .copyright li:last-child a{
+  border-right: 0;
+}
+
+.footer .copyright p {
+  color: #A1A1A1;
+}

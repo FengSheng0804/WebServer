@@ -11,7 +11,6 @@ public class main {
      * @param args 命令行参数
      */
     public static void main(String[] args) {
-
         /**
          * 创建并启动一个新的线程来运行服务器。
          * 该线程将实例化一个端口号为8080的ProxyServer对象，并将其设置为可见。
