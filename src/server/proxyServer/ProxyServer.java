@@ -254,14 +254,9 @@ public class ProxyServer extends JFrame {
                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-                // 转发到目标服务器
-                new Thread(() -> forwardData(copiedInputStream, targetOutput)).start();
-                // 读取目标服务器的响应内容
-                forwardData(targetInput, clientOutput);
-
                 String requestURL = "http://127.0.0.1:10000" + header;
                 // 尝试从缓存获取响应
-                byte[] cachedResponse = cache.get(requestURL);
+                byte[] cachedResponse = cache.get(header);
                 if (cachedResponse != null) {
                     // 如果缓存中存在响应，则直接返回缓存的响应内容
                     InputStream cachedInputStream = new ByteArrayInputStream(cachedResponse);
@@ -269,23 +264,47 @@ public class ProxyServer extends JFrame {
                     new Thread(() -> forwardData(cachedInputStream, clientOutput)).start();
                     logArea.append("Cache hit for URL: " + requestURL + "\n");
                 } else {
-                    // 转发到目标服务器
-                    new Thread(() -> forwardData(clientInput, targetOutput)).start();
-                    // 读取目标服务器的响应内容
-                    forwardData(targetInput, clientOutput);
+                    if (cache.isFull()) {
+                        // 如果缓存已满，则移除最早的缓存项
+                        cache.removeLeastRecentlyUsed();
+                        logArea.append("Cache is full, removing least recently used item\n");
 
-                    // 将服务器的响应返回处理成ByteArrayOutputStream类型以返回
-                    ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = targetInput.read(buffer)) != -1) {
-                        responseBuffer.write(buffer, 0, length);
+                        // 转发到目标服务器
+                        new Thread(() -> forwardData(copiedInputStream, targetOutput)).start();
+                        // 读取目标服务器的响应内容
+                        forwardData(targetInput, clientOutput);
+
+                        // 将服务器的响应返回处理成ByteArrayOutputStream类型以返回
+                        ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = targetInput.read(buffer)) != -1) {
+                            responseBuffer.write(buffer, 0, length);
+                        }
+                        byte[] responseContent = responseBuffer.toByteArray();
+
+                        // 缓存服务器的响应内容
+                        cache.put(requestURL, responseContent);
+                        logArea.append("Cache miss for URL: " + requestURL + "\n");
+                    } else {
+                        // 转发到目标服务器
+                        new Thread(() -> forwardData(copiedInputStream, targetOutput)).start();
+                        // 读取目标服务器的响应内容
+                        forwardData(targetInput, clientOutput);
+
+                        // 将服务器的响应返回处理成ByteArrayOutputStream类型以返回
+                        ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = targetInput.read(buffer)) != -1) {
+                            responseBuffer.write(buffer, 0, length);
+                        }
+                        byte[] responseContent = responseBuffer.toByteArray();
+
+                        // 缓存服务器的响应内容
+                        cache.put(requestURL, responseContent);
+                        logArea.append("Cache miss for URL: " + requestURL + "\n");
                     }
-                    byte[] responseContent = responseBuffer.toByteArray();
-
-                    // 缓存服务器的响应内容
-                    cache.put(requestURL, responseContent);
-                    logArea.append("Cache miss for URL: " + requestURL + "\n");
                 }
             } catch (IOException e) {
                 e.printStackTrace();

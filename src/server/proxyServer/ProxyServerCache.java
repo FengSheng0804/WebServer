@@ -25,6 +25,11 @@ class CachedObject {
         this.lastAccessTime = System.currentTimeMillis();
     }
 
+    // 获取最后访问时间
+    public long getLastAccessTime() {
+        return lastAccessTime;
+    }
+
     // 获取缓存内容
     public byte[] getContent() {
         // 更新最后访问时间为当前时间
@@ -96,5 +101,21 @@ public class ProxyServerCache {
     // 检测缓存中是否包含指定的键
     public boolean containsKey(String key) {
         return cache.containsKey(key);
+    }
+
+    // 判断缓存是否为满
+    public boolean isFull() {
+        return cache.size() >= MAX_CACHE_SIZE;
+    }
+
+    // 使用LRU算法移除最近最少使用的缓存项
+    public void removeLeastRecentlyUsed() {
+        // 获取最近最少使用的缓存项
+        String leastRecentlyUsedKey = cache.entrySet().stream()
+                .min((entry1, entry2) -> Long.compare(entry1.getValue().getLastAccessTime(),
+                        entry2.getValue().getLastAccessTime()))
+                .map(entry -> entry.getKey()).orElse(null);
+        // 移除最近最少使用的缓存项
+        cache.remove(leastRecentlyUsedKey);
     }
 }

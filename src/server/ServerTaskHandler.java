@@ -96,8 +96,8 @@ class ServerTaskHandler extends Thread {
      */
     private void responseController(String URL) {
         // 读取静态资源文件：请求路径：/web/index.html
-        // String filePath = URL.substring(1); // 运行用
-        String filePath = "src/" + URL.substring(1); // 调试用
+        String filePath = URL.substring(1); // 运行用
+        // String filePath = "src/" + URL.substring(1); // 调试用
 
         // 通过输入流读取文件
         try {
@@ -219,8 +219,8 @@ class ServerTaskHandler extends Thread {
      * @return 对应的Content-Type类型
      */
     private String getContentType(String fileExtension) {
-        // String fileName = "./data/content-type.txt"; // 运行用
-        String fileName = "./src/data/content-type.txt"; // 调试用
+        String fileName = "./data/content-type.txt"; // 运行用
+        // String fileName = "./src/data/content-type.txt"; // 调试用
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
