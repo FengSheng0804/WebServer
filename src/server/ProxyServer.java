@@ -3,8 +3,12 @@ package server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,9 +21,21 @@ public class ProxyServer extends JFrame {
     private ServerSocket serverSocket;
     private boolean isRunning;
 
+    private static Set<String> whiteList = new HashSet<>(); // 白名单集合，存储允许访问的IP地址
+    private static Set<String> blackList = new HashSet<>(); // 黑名单集合，存储禁止访问的IP地址
     private int port; // 代理服务器监听的端口
     private String targetHost; // 目标服务器的主机名
     private int targetPort; // 目标服务器的端口
+
+    static {
+        // 初始化白名单，添加一些示例IP地址
+        whiteList.add("127.0.0.1"); // IPv4的本地回环地址
+        whiteList.add("0:0:0:0:0:0:0:1"); // IPv6的本地回环地址
+        whiteList.add("localhost"); // 本地主机名
+
+        // 初始化黑名单，添加一些示例IP地址
+        blackList.add("192.168.1.200");
+    }
 
     public ProxyServer(int port, String targetHost, int targetPort) {
         this.port = port;
@@ -75,9 +91,6 @@ public class ProxyServer extends JFrame {
 
     /**
      * 启动代理服务器。
-     * 
-     * 
-     * @throws IOException 如果在创建服务器套接字或接受客户端连接时发生 I/O 错误。
      */
     public void startServer() {
         isRunning = true;
@@ -96,7 +109,19 @@ public class ProxyServer extends JFrame {
                     // 循环监听
                     while (isRunning) {
                         Socket clientSocket = serverSocket.accept();
-                        new ProxyServerTaskHandler(clientSocket, targetHost, targetPort).start();
+                        if (isWhiteListed(clientSocket.getInetAddress().getHostAddress())) {
+                            // 如果客户端在白名单中，打印日志并创建一个新的线程来处理代理服务器的任务
+                            logArea.append("Client " + clientSocket.getInetAddress().getHostAddress()
+                                    + " is in the white list\n");
+                            // 创建一个新的线程来处理代理服务器的任务
+                            new ProxyServerTaskHandler(clientSocket, targetHost, targetPort).start();
+                        } else if (isBlackListed(clientSocket.getInetAddress().getHostAddress())) {
+                            // 如果客户端在黑名单中，打印日志并关闭客户端套接字
+                            logArea.append("Client " + clientSocket.getInetAddress().getHostAddress()
+                                    + " is in the black list\n");
+                            clientSocket.close();
+                            continue;
+                        }
                     }
                 } catch (IOException e) {
                     logArea.append("Error: " + e.getMessage() + "\n");
@@ -132,6 +157,17 @@ public class ProxyServer extends JFrame {
         }
     }
 
+    // 是否在白名单中
+    private boolean isWhiteListed(String clientIP) {
+        return whiteList.contains(clientIP);
+    }
+
+    // 是否在黑名单中
+    private boolean isBlackListed(String clientIP) {
+        return blackList.contains(clientIP);
+    }
+
+    // 对代理服务器的任务进行处理
     private static class ProxyServerTaskHandler extends Thread {
         private Socket clientSocket; // 客户端套接字
         private String targetHost; // 目标服务器的主机名

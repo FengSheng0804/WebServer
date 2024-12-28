@@ -125,13 +125,8 @@ public class Server extends JFrame {
 
     /**
      * 停止服务器的方法。
-     * 将 isRunning 标志设置为 false，启用 startButton 按钮，禁用 stopButton 按钮，并在 logArea 中追加
-     * 
-     * 
-     * 
-     * 
-     * 
-     * "Server stopped" 消息。
+     * 将 isRunning 标志设置为 false，启用 startButton 按钮，禁用 stopButton 按钮，并在 
+     * logArea 中追加"Server stopped" 消息。
      * 如果 serverSocket 不为空，则尝试关闭 serverSocket。
      * 如果在关闭 serverSocket 时发生 IOException，则在 logArea 中追加错误消息。
      */
