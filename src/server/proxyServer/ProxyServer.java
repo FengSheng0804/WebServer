@@ -261,7 +261,7 @@ public class ProxyServer extends JFrame {
                     InputStream cachedInputStream = new ByteArrayInputStream(cachedResponse);
                     // 将缓存的响应内容转发到客户端
                     new Thread(() -> forwardData(cachedInputStream, clientOutput)).start();
-                    logArea.append("Cache hit for URL: " + requestURL + "\n");
+                    logArea.append("Cache hit for URL: " + header + "\n");
                 } else {
                     if (cache.isFull()) {
                         // 如果缓存已满，则移除最早的缓存项
@@ -283,8 +283,8 @@ public class ProxyServer extends JFrame {
                         byte[] responseContent = responseBuffer.toByteArray();
 
                         // 缓存服务器的响应内容
-                        cache.put(requestURL, responseContent);
-                        logArea.append("Cache miss for URL: " + requestURL + "\n");
+                        cache.put(header, responseContent);
+                        logArea.append("Cache miss for URL: " + header + "\n");
                     } else {
                         // 转发到目标服务器
                         new Thread(() -> forwardData(copiedInputStream, targetOutput)).start();
