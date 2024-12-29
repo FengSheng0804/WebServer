@@ -266,50 +266,29 @@ public class ProxyServer extends JFrame {
                     // 如果缓存中存在响应，则直接返回缓存的响应内容
                     InputStream cachedInputStream = new ByteArrayInputStream(cachedResponse);
                     // 将缓存的响应内容转发到客户端
-                    new Thread(() -> forwardData(cachedInputStream, clientOutput)).start();
+                    forwardData(cachedInputStream, clientOutput);
                     logArea.append("Cache hit for URL: " + requestURL + "\n");
                 } else {
                     if (cache.isFull()) {
                         // 如果缓存已满，则移除最早的缓存项
                         cache.removeLeastRecentlyUsed();
                         logArea.append("Cache is full, removing least recently used item\n");
-
-                        // 转发到目标服务器
-                        new Thread(() -> forwardData(copiedInputStream, targetOutput)).start();
-                        // 读取目标服务器的响应内容
-                        forwardData(targetInput, clientOutput);
-
-                        // 将服务器的响应返回处理成ByteArrayOutputStream类型以返回
-                        ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
-                        byte[] buffer = new byte[1024];
-                        int length;
-                        while ((length = targetInput.read(buffer)) != -1) {
-                            responseBuffer.write(buffer, 0, length);
-                        }
-                        byte[] responseContent = responseBuffer.toByteArray();
-
-                        // 缓存服务器的响应内容
-                        cache.put(requestURL, responseContent);
-                        logArea.append("Cache miss for URL: " + requestURL + "\n");
-                    } else {
-                        // 转发到目标服务器
-                        new Thread(() -> forwardData(copiedInputStream, targetOutput)).start();
-                        // 读取目标服务器的响应内容
-                        forwardData(targetInput, clientOutput);
-
-                        // 将服务器的响应返回处理成ByteArrayOutputStream类型以返回
-                        ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
-                        byte[] buffer = new byte[1024];
-                        int length;
-                        while ((length = targetInput.read(buffer)) != -1) {
-                            responseBuffer.write(buffer, 0, length);
-                        }
-                        byte[] responseContent = responseBuffer.toByteArray();
-
-                        // 缓存服务器的响应内容
-                        cache.put(requestURL, responseContent);
-                        logArea.append("Cache miss for URL: " + requestURL + "\n");
                     }
+                    // 转发到目标服务器
+                    forwardData(copiedInputStream, targetOutput);
+                    // 读取目标服务器的响应内容
+                    ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = targetInput.read(buffer)) != -1) {
+                        responseBuffer.write(buffer, 0, length);
+                        clientOutput.write(buffer, 0, length);
+                    }
+                    byte[] responseContent = responseBuffer.toByteArray();
+
+                    // 缓存服务器的响应内容
+                    cache.put(requestURL, responseContent);
+                    logArea.append("Cache miss for URL: " + requestURL + "\n");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
