@@ -31,7 +31,7 @@ class ServerTaskHandler extends Thread {
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         try {
             InputStream is = clientSocket.getInputStream();
             // 通过输入流获取客户端发送的数据
@@ -47,24 +47,34 @@ class ServerTaskHandler extends Thread {
                 }
             }
             String requestString = requestBuilder.toString();
-            String URL = requestLine.split(" ")[1];
+            String URL = null;
+            if (requestLine != null) {
+                URL = requestLine.split(" ")[1];
+            }
 
             // 以下均为GET请求的处理
             // 处理请求头，方便后续使用
             Map<String, String> headers = processHeaders(requestString);
 
             // 检查是否为未实现的请求方法，若是则返回501错误
-            if (!requestLine.startsWith("GET")) {
+            if (requestLine != null && !requestLine.startsWith("GET")) {
                 logArea.append("Not Implemented request method: " + requestLine + "\n");
                 response501();
                 return;
             }
 
-            // 使用Server中的appendLog方法添加到文本区域中
-            logArea.append("*****Request URL: " + URL + "*****\n");
+            if (URL == null) {
+                logArea.append("Bad Request: " + requestLine + "\n");
+                response400();
+                return;
+            } else {
+                // 使用Server中的appendLog方法添加到文本区域中
+                logArea.append("*****Request URL: " + URL + "*****\n");
 
-            // 读取静态资源文件
-            responseController(URL);
+                // 读取静态资源文件
+                responseController(URL);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
             response500();
@@ -86,10 +96,6 @@ class ServerTaskHandler extends Thread {
                 }
             }
         }
-    }
-
-    private boolean isProxyServer(Socket socket) {
-        return socket.getLocalPort() == 10000;
     }
 
     /**
@@ -186,7 +192,7 @@ class ServerTaskHandler extends Thread {
         // 获取content-type类型
         String content_type = getContentType(fileExtension);
 
-        if (content_type.startsWith("text")) {
+        if (content_type != null && content_type.startsWith("text")) {
             // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
             // 请求行：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
             StringBuilder sb = new StringBuilder();
@@ -235,7 +241,7 @@ class ServerTaskHandler extends Thread {
             String line;
 
             while ((line = br.readLine()) != null) {
-                if (line.contains(fileExtension)) {
+                if (line.contains(fileExtension) && line != null) {
                     return line.split(":")[1].trim();
                 }
             }
@@ -255,15 +261,23 @@ class ServerTaskHandler extends Thread {
     public Map<String, String> processHeaders(String requestString) {
         Map<String, String> headers = new HashMap<>();
 
-        String[] lines = requestString.split("\r\n");
+        if (requestString != null) {
+            String[] lines = requestString.split("\r\n");
 
-        for (String line : lines) {
-            String[] parts = line.split(": ", 2);
-            if (parts.length == 2) {
-                headers.put(parts[0], parts[1]);
+            for (String line : lines) {
+                if (line != null) {
+                    String[] parts = line.split(": ", 2);
+                    if (parts.length == 2) {
+                        headers.put(parts[0], parts[1]);
+                    }
+                }
             }
         }
         return headers;
+    }
+
+    private boolean isProxyServer(Socket socket) {
+        return socket.getLocalPort() == 10000;
     }
 
     /**
