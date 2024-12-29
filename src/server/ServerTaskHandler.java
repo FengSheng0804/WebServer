@@ -1,5 +1,6 @@
 package server;
 
+import utils.compress.DeflateUtils;
 import utils.compress.GZipUtils;
 
 import java.net.Socket;
@@ -157,7 +158,9 @@ class ServerTaskHandler extends Thread {
     private void responseStaticResource(String filePath, String fileExtension, String compressMethod)
             throws IOException {
         // 是否压缩
-        boolean isCompress = false;
+        boolean isCompressByGzip = false;
+        boolean isCompressByDeflate = false;
+        byte[] compressedBytes = null;
         switch (compressMethod) {
             case "gzip":
                 try {
@@ -169,12 +172,20 @@ class ServerTaskHandler extends Thread {
                 // 更新文件路径
                 filePath = filePath + ".gz";
                 // 告诉浏览器使用压缩
-                isCompress = true;
+                isCompressByGzip = true;
                 logArea.append("~~~~~Compress: " + filePath + " Successfully~~~~~\n");
                 break;
             case "deflate":
+                try {
+                    // 对文件进行压缩，压缩不删除原文件
+                    compressedBytes = DeflateUtils.compress(filePath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                isCompressByDeflate = true;
                 break;
             default:
+                // 不压缩
                 break;
         }
         // 初始化
@@ -191,7 +202,8 @@ class ServerTaskHandler extends Thread {
 
         // 获取content-type类型
         String content_type = getContentType(fileExtension);
-        if (!isCompress) {
+        // 如果不压缩的话
+        if (!isCompressByGzip && !isCompressByDeflate) {
             if (content_type != null && content_type.startsWith("text")) {
                 // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
                 // 响应头：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
@@ -218,7 +230,8 @@ class ServerTaskHandler extends Thread {
                 os.write(fileBytes);
                 os.flush();
             }
-        } else {
+            // 如果采用gzip压缩的话
+        } else if (isCompressByGzip) {
             if (content_type != null && content_type.startsWith("text")) {
                 // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
                 // 响应头：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
@@ -259,6 +272,35 @@ class ServerTaskHandler extends Thread {
                     logArea.append("%%%%%Delete: " + filePath + " Successfully%%%%%\n");
                 } else {
                     logArea.append("%%%%%Delete: " + filePath + " Failed%%%%%\n");
+                }
+            }
+            // 如果采用deflate压缩的话
+        } else {
+            if (compressedBytes != null) {
+                // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
+                // 响应头：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
+                if (content_type != null && content_type.startsWith("text")) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("HTTP/1.1 200 OK\n")
+                            .append("Content-Encoding: deflate\n")
+                            .append("Content-Type:text/" + fileExtension + ";charset=utf-8\n\n");
+
+                    OutputStream os = clientSocket.getOutputStream();
+                    os.write(sb.toString().getBytes());
+                    os.write(compressedBytes);
+                    os.flush();
+                } else {
+                    PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+                    pw.println("HTTP/1.1 200 OK");
+                    pw.println("Content-Encoding: deflate");
+                    pw.println("Content-Type: " + content_type);
+                    pw.println("Content-Length: " + compressedBytes.length);
+                    pw.println(); // 空行表示头部结束
+                    pw.flush();
+
+                    OutputStream os = clientSocket.getOutputStream();
+                    os.write(compressedBytes);
+                    os.flush();
                 }
             }
         }
