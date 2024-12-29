@@ -1,9 +1,12 @@
 package server;
 
+import utils.compress.GZipUtils;
+
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JTextArea;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,9 +46,14 @@ class ServerTaskHandler extends Thread {
             while ((line = br.readLine()) != null && !line.isEmpty()) {
                 requestBuilder.append(line).append("\n");
                 if (requestLine == null) {
+                    // 若URL中包含参数，则去掉参数，因为有参数是POST请求
+                    if (line.contains("?")) {
+                        line = line.substring(0, line.indexOf("?"));
+                    }
                     requestLine = line;
                 }
             }
+
             String requestString = requestBuilder.toString();
             String URL = null;
             if (requestLine != null) {
@@ -53,9 +61,6 @@ class ServerTaskHandler extends Thread {
             }
 
             // 以下均为GET请求的处理
-            // 处理请求头，方便后续使用
-            Map<String, String> headers = processHeaders(requestString);
-
             // 检查是否为未实现的请求方法，若是则返回501错误
             if (requestLine != null && !requestLine.startsWith("GET")) {
                 logArea.append("Not Implemented request method: " + requestLine + "\n");
@@ -71,10 +76,22 @@ class ServerTaskHandler extends Thread {
                 // 使用Server中的appendLog方法添加到文本区域中
                 logArea.append("*****Request URL: " + URL + "*****\n");
 
-                // 读取静态资源文件
-                responseController(URL);
-            }
+                // 先对文件进行压缩处理
+                // 处理请求头，方便后续使用
+                Map<String, String> headers = processHeaders(requestString);
+                // 获取Accept-Encoding字段
+                String acceptEncoding = headers.get("Accept-Encoding");
+                String compressMethod = null;
+                if (acceptEncoding != null) {
+                    String[] acceptMethod = acceptEncoding.split(",");
+                    if (acceptMethod.length != 0) {
+                        compressMethod = acceptMethod[0];
+                    }
+                }
 
+                // 进入静态资源文件总控方法
+                responseController(URL, compressMethod);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             response500();
@@ -109,60 +126,21 @@ class ServerTaskHandler extends Thread {
      *
      * @throws IOException 如果读取文件时发生IO错误
      */
-    private void responseController(String URL) {
-        // 读取静态资源文件：请求路径：/web/index.html
-        String filePath = URL.substring(1); // 运行用
-        // String filePath = "src/" + URL.substring(1); // 调试用
+    private void responseController(String URL, String compressMethod) throws IOException {
+        // 获取当前工作目录，如果是运行目录的话会在src中，如果是调试目录的话会在src的上一级
+        String currentDir = System.getProperty("user.dir");
+        String filePath = null;
+        if (currentDir.endsWith("src")) {
+            filePath = URL.substring(1);
+        } else {
+            filePath = "src" + URL;
+        }
 
         // 通过输入流读取文件
         try {
             String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
-            // 判断content-type类型
-            switch (fileExtension) {
-                case "7z":
-                case "avi":
-                case "bin":
-                case "bmp":
-                case "css":
-                case "csv":
-                case "doc":
-                case "docx":
-                case "exe":
-                case "gif":
-                case "gz":
-                case "htm":
-                case "html":
-                case "ico":
-                case "jar":
-                case "jpeg":
-                case "jpg":
-                case "js":
-                case "json":
-                case "mp3":
-                case "mp4":
-                case "mpeg":
-                case "odt":
-                case "pdf":
-                case "php":
-                case "png":
-                case "ppt":
-                case "pptx":
-                case "rar":
-                case "sh":
-                case "svg":
-                case "tar":
-                case "ttf":
-                case "txt":
-                case "webp":
-                case "woff":
-                case "woff2":
-                case "xls":
-                case "xlsx":
-                case "xml":
-                case "zip":
-                    responseStaticResource(filePath, fileExtension);
-                    break;
-            }
+            responseStaticResource(filePath, fileExtension, compressMethod);
+
         } catch (IOException e) {
             e.printStackTrace();
             response404();
@@ -176,7 +154,29 @@ class ServerTaskHandler extends Thread {
      * @param fileExtension 静态资源文件的扩展名，用于确定内容类型
      * @throws IOException 如果在读取文件或写入客户端时发生 I/O 错误
      */
-    private void responseStaticResource(String filePath, String fileExtension) throws IOException {
+    private void responseStaticResource(String filePath, String fileExtension, String compressMethod)
+            throws IOException {
+        // 是否压缩
+        boolean isCompress = false;
+        switch (compressMethod) {
+            case "gzip":
+                try {
+                    // 对文件进行压缩，压缩不删除原文件
+                    GZipUtils.compress(filePath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // 更新文件路径
+                filePath = filePath + ".gz";
+                // 告诉浏览器使用压缩
+                isCompress = true;
+                logArea.append("~~~~~Compress: " + filePath + " Successfully~~~~~\n");
+                break;
+            case "deflate":
+                break;
+            default:
+                break;
+        }
         // 初始化
         InputStream is = new FileInputStream(filePath);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -191,32 +191,76 @@ class ServerTaskHandler extends Thread {
 
         // 获取content-type类型
         String content_type = getContentType(fileExtension);
+        if (!isCompress) {
+            if (content_type != null && content_type.startsWith("text")) {
+                // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
+                // 响应头：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
+                StringBuilder sb = new StringBuilder();
+                sb.append("HTTP/1.1 200 OK\n")
+                        .append("Content-Type:text/" + fileExtension + ";charset=utf-8\n\n");
 
-        if (content_type != null && content_type.startsWith("text")) {
-            // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
-            // 请求行：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
-            StringBuilder sb = new StringBuilder();
-            sb.append("HTTP/1.1 200 OK\n")
-                    .append("Content-Type:text/" + fileExtension + ";charset=utf-8\n\n");
+                // 通过输出流将文件写回到客户端
+                OutputStream os = clientSocket.getOutputStream();
+                os.write(sb.toString().getBytes());
+                os.write(fileBytes);
+                os.flush();
+            } else {
+                // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
+                PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+                pw.println("HTTP/1.1 200 OK");
+                pw.println("Content-Type: " + content_type);
+                pw.println("Content-Length: " + fileBytes.length);
+                pw.println(); // 空行表示头部结束
+                pw.flush();
 
-            // 通过输出流将文件写回到客户端
-            OutputStream os = clientSocket.getOutputStream();
-            os.write(sb.toString().getBytes());
-            os.write(fileBytes);
-            os.flush();
+                // 通过输出流将文件写回到客户端
+                OutputStream os = clientSocket.getOutputStream();
+                os.write(fileBytes);
+                os.flush();
+            }
         } else {
-            // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
-            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
-            pw.println("HTTP/1.1 200 OK");
-            pw.println("Content-Type: " + content_type);
-            pw.println("Content-Length: " + fileBytes.length);
-            pw.println(); // 空行表示头部结束
-            pw.flush();
+            if (content_type != null && content_type.startsWith("text")) {
+                // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
+                // 响应头：协议版本号 状态码(200表示请求成功) 状态值(ok表示请求成功)
+                StringBuilder sb = new StringBuilder();
+                sb.append("HTTP/1.1 200 OK\n")
+                        .append("Content-Encoding: gzip\n")
+                        .append("Content-Type:text/" + fileExtension + ";charset=utf-8\n\n");
 
-            // 通过输出流将文件写回到客户端
-            OutputStream os = clientSocket.getOutputStream();
-            os.write(fileBytes);
-            os.flush();
+                // 通过输出流将文件写回到客户端
+                OutputStream os = clientSocket.getOutputStream();
+                os.write(sb.toString().getBytes());
+                os.write(fileBytes);
+                os.flush();
+
+                // 在传输完数据之后，删除压缩文件
+                if (GZipUtils.delete(filePath)) {
+                    logArea.append("#####Delete: " + filePath + " Successfully#####\n");
+                } else {
+                    logArea.append("#####Delete: " + filePath + " Failed#####\n");
+                }
+            } else {
+                // 在将数据发送给浏览器之前，需要将数据处理成浏览器能识别到的报文形式
+                PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+                pw.println("HTTP/1.1 200 OK");
+                pw.println("Content-Encoding: gzip");
+                pw.println("Content-Type: " + content_type);
+                pw.println("Content-Length: " + fileBytes.length);
+                pw.println(); // 空行表示头部结束
+                pw.flush();
+
+                // 通过输出流将文件写回到客户端
+                OutputStream os = clientSocket.getOutputStream();
+                os.write(fileBytes);
+                os.flush();
+
+                // 在传输完数据之后，删除压缩文件
+                if (GZipUtils.delete(filePath)) {
+                    logArea.append("%%%%%Delete: " + filePath + " Successfully%%%%%\n");
+                } else {
+                    logArea.append("%%%%%Delete: " + filePath + " Failed%%%%%\n");
+                }
+            }
         }
         logArea.append("=====Response: " + content_type + ": " + filePath + " Successfully=====\n");
 
@@ -234,10 +278,16 @@ class ServerTaskHandler extends Thread {
      * @return 对应的Content-Type类型
      */
     private String getContentType(String fileExtension) {
-        String fileName = "./data/content-type.txt"; // 运行用
-        // String fileName = "./src/data/content-type.txt"; // 调试用
+        // 获取当前工作目录，如果是运行目录的话会在src中，如果是调试目录的话会在src的上一级
+        String currentDir = System.getProperty("user.dir");
+        String filePath = null;
+        if (currentDir.endsWith("src")) {
+            filePath = "./data/content-type.txt";
+        } else {
+            filePath = "./src/data/content-type.txt";
+        }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
 
             while ((line = br.readLine()) != null) {
@@ -248,7 +298,8 @@ class ServerTaskHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "application/octet-stream"; // 默认的content_type类型是这个
+        // 默认的content_type类型是这个
+        return "application/octet-stream";
     }
 
     // 处理请求头
@@ -262,7 +313,7 @@ class ServerTaskHandler extends Thread {
         Map<String, String> headers = new HashMap<>();
 
         if (requestString != null) {
-            String[] lines = requestString.split("\r\n");
+            String[] lines = requestString.split("\n");
 
             for (String line : lines) {
                 if (line != null) {
