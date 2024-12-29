@@ -70,8 +70,6 @@ class ServerTaskHandler extends Thread {
             }
 
             if (URL == null) {
-                logArea.append("Bad Request: " + requestLine + "\n");
-                response400();
                 return;
             } else {
                 // 使用Server中的appendLog方法添加到文本区域中
@@ -173,7 +171,7 @@ class ServerTaskHandler extends Thread {
                 filePath = filePath + ".gz";
                 // 告诉浏览器使用压缩
                 isCompressByGzip = true;
-                logArea.append("~~~~~Compress: " + filePath + " Successfully~~~~~\n");
+                logArea.append("~~~~~Compress by Gzip: " + filePath + " Successfully~~~~~\n");
                 break;
             case "deflate":
                 try {
@@ -183,6 +181,7 @@ class ServerTaskHandler extends Thread {
                     e.printStackTrace();
                 }
                 isCompressByDeflate = true;
+                logArea.append("~~~~~Compress by Deflate: " + filePath + " Successfully~~~~~\n");
                 break;
             default:
                 // 不压缩
