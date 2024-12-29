@@ -1,0 +1,401 @@
+/* 首页样式 */
+
+/* 版心居中效果 */
+.wrapper {
+    margin: 0 auto;
+    width: 1200px;
+}
+/* 宽度和浏览器窗口相同的部分叫做通栏 */
+body {
+    background-color: #f3f5f7;
+}
+
+/* ------------------------------------ ------- */
+/* 头部区域 */
+.header {
+    height: 100px;
+    background-color: #fff;
+}
+.header .wrapper {
+    padding: 29px;
+    display: flex;
+}
+
+/* ------------------------------------------- */
+/* logo区域 */
+.logo a {
+    display: block;/* 将原本a标签的行内显示模式转化成块显示模式，从而使大小生效 */
+    width: 195px;
+    height: 41px;
+    background-image: url(../images/logo.png);
+    font-size: 0 ;/* 文字设置成0px大小，将文字隐藏起来 */
+}
+
+/* ------------------------------------------- */
+/* 导航区域 */
+.nav {
+    margin-left: 55px;
+}
+.nav ul {
+    display: flex;
+}
+.nav ul li {
+    margin-right: 24px; /* 32-8=24 */
+}
+.nav ul li a {
+    display: block;
+    padding: 6px 8px;
+    line-height: 27px;
+    font-size: 19px;
+}
+/* 使用并集选择器，active(被选中的页面)的页面和悬浮a的效果都存在蓝色下划线 */
+.nav ul li .active,
+.nav ul li a:hover {
+    border-bottom: 2px solid #00a4ff;
+}
+/* ------------------------------------------- */
+/* 搜索区域 */
+.search {
+    display: flex;/* 侧轴默认拉伸，所以使用flex布局后，input输入框的高度和父级相同
+                     同时，清除了input和button之间的小间距 */
+    margin-left: 32px;
+    padding: 0px 12px 0px 19px;
+    width: 412px;
+    height: 40px;
+    background-color: #f3f5f7;
+    border-radius: 20px;
+}
+.search input {
+    flex: 1;/* 除了左边的部分和右边的搜索按键以外的部分，其他部分都作为输入框  */
+    border: 0;
+    background-color: transparent;/* 背景色设置为透明 */
+    outline: none;/* 删除焦点框的黑线 */
+}
+/* 控制输入框的默认文字的样式 */
+.search input::placeholder {
+    color: #999;
+    font-size: 14px;
+}
+.search button {/* 由于父级已经设置了display:flex属性了，所以button现在是一个弹性盒子，给button设置宽高可以生效 */
+    align-self: center;/* 只控制button标签的垂直方向，使用align-self，取值是center是因为垂直方向上自有一个元素 */
+    width: 16px;
+    height: 16px;
+    background-image: url(../images/search.png);
+    border: 0;
+}
+/* ------------------------------------------- */
+/* 用户区域 */
+.user {
+    margin: 4px 0px 4px 32px;
+}
+.user img {
+    margin-right: 7px;
+    /* 专门用来处理行内块和行内垂直方向上对齐 */
+    vertical-align: middle;
+}
+.user span {
+    font-size: 16px;
+    color: #666;
+}
+
+/* ============================================ */
+/* banner区域 */
+.banner {
+    height: 420px;
+    background-color: #0092cb;
+}
+/* 设置banner下的版心效果 */
+.banner .wrapper {
+    display: flex;
+    justify-content: space-between;
+    background-image: url(../uploads/banner.png);
+}
+/* 左侧侧导航 */
+.banner .wrapper .left {
+    padding: 3px 20px;
+    width: 191px;
+    height: 420px;/* 由于父级为flex，所以高度可有可无 */
+    background-color: rgba(0,0,0,0.42);
+}
+.banner .wrapper .left a {/* 这里选择给a添加css的原因是如果给li添加，
+                             则a标签只有点击文字才能跳转，点击空白区域不能跳转 */
+    display: block;/* 块级宽度默认是父级的100% */
+    height: 46px;
+    line-height: 46px;
+    color: #fff;
+    background: url(../images/right.png) no-repeat right center;
+}
+.banner .wrapper .left a:hover {
+    color: #00a4ff;
+    background-image: url(../images/right-hover.png);/* 由于继承了a标签的属性，所以不用再单独设置 */
+}
+/* 右侧侧导航 */
+.banner .wrapper .right {
+    margin-top: 60px;
+    width: 218px;
+    height: 305px;
+    background-color: #209dd5;
+
+    border-radius: 10px;
+}
+.banner .wrapper .right h3{
+    margin-left: 14px;
+    height: 48px;
+
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 48px;
+    color: #fff;
+}
+.banner .wrapper .right .content{
+    padding: 14px;
+    background-color: #fff; 
+    height: 257px;
+    border-radius: 10px;
+}
+.banner .wrapper .right .content dl{
+    margin-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+.banner .wrapper .right .content dt {
+    margin-bottom: 8px;
+
+    font-weight: 700;
+    font-size: 14px;
+    color: #333;
+    line-height: 20px;
+}
+.banner .wrapper .right .content dd {
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 16px;
+}
+.banner .wrapper .right .content span {
+    color: #00a4ff;
+}
+.banner .wrapper .right .content dl a {
+    font-weight: 400;
+    color: #7d7d7d;
+}
+.banner .wrapper .right .content .course {
+    display: block;
+    width: 190px;
+    height: 32px;
+    border-radius: 15px;
+    background-color: #00a4ff;
+
+    color: #fff;
+    font-size: 14px;
+    line-height: 32px;
+    text-align: center;
+}
+/* ============================================ */
+/* 推荐区域 */
+.recommend {
+    display: flex;
+    padding: 0 20px;
+    margin-top: 11px;
+    margin-bottom: 13px;
+    height: 60px;
+    background-color: #fff;
+    box-shadow: 0px 1px 2px 0px rgba(211, 211, 211, 0.5);
+}
+.recommend h3 {
+    margin: 18px 20px 18px 0px;
+
+    color: #00a4ff;
+    font-size: 18px;
+    line-height: 25px;
+    font-weight: normal;
+}
+.recommend ul {
+    margin: 18px 0;
+    display: flex;
+    flex: 1;
+    height: 25px;
+
+    font-size: 18px;
+    line-height: 25px;
+}
+.recommend ul li a{
+    padding: 0 25px;
+    border-right: 1px solid #e0e0e0;
+}
+.recommend ul li a:hover {
+    color: #00a4ff;
+}
+.recommend ul li:last-child a{
+    border: 0;
+}
+.recommend .modify {
+    display: block;
+    margin-top: 19px;
+    margin-bottom: 19px;
+    height: 23px;
+
+    font-size: 16px;
+    line-height: 22px;
+    color: #00a4ff;
+}
+/* ============================================ */
+/* 精品课程区域 */
+/* 标题 --- 公共样式，与其他区域共用 */
+.hd {
+    display: flex;
+    justify-content: space-between;
+    height: 60px;
+    margin-top: 15px;
+
+    line-height: 60px;
+}
+.hd h3{
+    width: 228px;
+    font-size: 21px;
+    font-weight: 400;
+}
+/* 查看全部的设置 */
+.hd .more {
+    padding-right: 20px;
+    font-size: 14px;
+    color: #999;
+    background: url(../images/more.png) no-repeat center right;
+}
+.hd a:hover {
+    color: #00a4ff;
+}
+/* 课程内容 --- 公共样式 */
+.bd {
+    display: flex;
+    justify-content: space-between;
+}
+.bd ul {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-content: space-between;
+    flex-flow: wrap;
+}
+.bd ul li {
+    margin-bottom: 15px;
+    width: 228px;
+    height: 271px;
+    background-color: #fff;
+}
+.bd ul li:nth-child(n+5) {
+    margin-bottom: 0px;
+}
+.bd li .pic {
+    height: 156px;
+}
+.bd li .text {
+    padding: 20px;
+    height: 115px;
+}
+.bd li .text h4{
+    margin-bottom: 13px ;
+    height: 40px;
+
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: normal;
+}
+.bd li .text p{
+    font-size: 14px;
+    line-height: 20px;
+    color: #999;
+}
+.bd li .text span {
+    color: #fa6400;
+}
+.bd li .text i {
+    font-style: normal;
+}
+/* ============================================ */
+/* 前端开发工程师区域 */
+.hd ul {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 203px;
+    margin-right: 370px;
+}
+.hd ul li{
+    font-size: 16px;
+    line-height: 32px;
+}
+.hd ul li a:hover {
+    color: #00a4ff;
+}
+.hd .active {
+    color: #00a4ff;
+}
+
+.bd .left{
+    width: 228px;
+}
+.bd .right .top {
+    margin-bottom: 15px;
+    height: 100px;
+}
+.bd .right .bottom {
+    height: 263px;
+}
+.bd .right .bottom ul {
+    display: flex;
+    justify-content: space-between;
+}
+/* 版权区域 */
+.footer {
+    margin-top: 60px;
+    padding-top: 60px;
+    background-color: #fff;
+    height: 273px;
+}
+.footer .wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+.footer .left{
+    height: 148px;
+    width: 432px;
+}
+.footer .left p {
+    margin-bottom: 14px;
+    margin-top: 24px;
+
+    font-size: 12px;
+    line-height: 17px;
+    color: #666;
+}
+.footer .left .download {
+    display: block;
+    width: 120px;
+    height: 36px;
+    border: 1px solid #00a4ff;
+
+    font-size: 16px;
+    line-height: 34px;
+    text-align: center;
+    color: #00a4ff;
+}
+.footer .right{
+    display: flex;
+    justify-content: space-between;
+    width: 516px;
+}
+.footer .right dl dt {
+    margin-bottom: 12px;
+
+    font-size: 16px;
+    line-height: 23px;
+    font-weight: 700;
+}
+.footer .right dl a {
+    font-size: 14px;
+    line-height: 24px;
+    color: #666;
+}
+.footer .right dl a:hover {
+    color:#00a4ff;
+}

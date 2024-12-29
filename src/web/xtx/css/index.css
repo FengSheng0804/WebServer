@@ -1,0 +1,505 @@
+/* 首页内容的样式 */
+
+/* ================================================== */
+/* banner区域 */
+/* 图片背景 */
+.banner {
+    height: 500px;
+    background-color: #F5F5F5;
+}
+
+.banner .wrapper {
+    position: relative;
+    height: 500px;
+    background-color: palegoldenrod;
+    overflow: hidden;
+}
+
+.banner .pic {
+    display: flex;
+}
+
+/* 三个图片排在一起的时候变小了，重新改变图像的尺寸 */
+.banner .pic img {
+    width: 1240px;
+}
+
+/* 侧导航 */
+.banner .subnav {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 250px;
+    height: 500px;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.banner .subnav li {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 30px;
+    padding-right: 12px;
+    width: 250px;
+    height: 50px;
+
+    line-height: 50px;
+}
+
+.banner .subnav li a {
+    margin-right: 5px;
+
+    font-size: 14px;
+    color: #fff;
+}
+
+.banner .subnav li a:first-child {
+    margin-right: 14px;
+    font-size: 16px;
+}
+
+.banner .subnav li:hover {
+    background-color: #00BE9A;
+}
+
+/* 圆点指示器 */
+.banner ol {
+    display: flex;
+    position: absolute;
+    bottom: 17px;
+    right: 16px;
+}
+
+.banner ol li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    margin-left: 8px;
+
+    cursor: pointer;
+}
+
+.banner ol li i {
+    display: block;
+    width: 14px;
+    height: 14px;
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 50%;
+}
+
+/* 设置选中状态的样式 */
+.banner ol .active {
+    background-color: rgba(255,255,255,0.5);
+}
+.banner ol .active i {
+    background-color: #fff;
+}
+
+/* ================================================== */
+/* 标题 */
+.title {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    margin-bottom: 30px;
+    height: 42px;
+}
+
+.title .left {
+    display: flex;
+}
+
+.title .left h3 {
+    margin-right: 35px;
+
+    font-size: 30px;
+}
+
+.title .left p {
+    /* 文字靠底端 */
+    align-self: flex-end;
+
+    color: #A1A1A1;
+}
+
+.title .right .more {
+    color: #A1A1A1;
+}
+
+.title .right .more .iconfont {
+    margin-left: 10px;
+    line-height: 42px;
+}
+
+.content {
+    height: 404px;
+}
+
+.content ul {
+    display: flex;
+    justify-content: space-between;
+}
+
+.content ul li {
+    background-color: #EEF9F4;
+    height: 404px;
+    width: 304px;
+}
+
+.content ul li a {
+    display: block;
+    width: 304px;
+}
+
+.content ul li a strong {
+    /* 需要先转成块的显示模式才能生效margin和text-align */
+    display: block;
+    margin-top: 17.5px;
+    margin-bottom: 7.5px;
+
+    text-align: center;
+    font-size: 20px;
+    font-weight: normal;
+    color: #333; 
+}
+
+.content ul li p {
+    font-size: 18px;
+    color: #AA2113;
+
+    text-align: center;
+}
+
+.content ul li p i {
+    font-size: 22px;
+}
+
+/* ================================================== */
+/* 人气推荐区域 */
+.recommend {
+    margin-bottom: 60px;
+}
+
+.recommend .content ul li {
+    background-color: #fff;
+}
+
+.recommend .content ul li p {
+    color: #A1A1A1;
+    font-size: 16px;
+}
+
+/* ================================================== */
+/* 热门品牌区域 */
+.brand {
+    background-color: #f5f5f5;
+    height: 468px;
+}
+
+.brand .wrapper {
+
+    /* 这里出现了塌陷问题，解决方法可以是不使用margin，使用padding
+        还可以直接对父级使用overflow: hidden; */
+    overflow: hidden;
+}
+
+.brand .title {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.brand .arrow {
+    display: flex;
+    position: absolute;
+    bottom: -35px;
+    right: 0;
+}
+
+.brand .arrow a {
+    margin-left: 12px;
+    margin-bottom: 15px;
+    height: 20px;
+    background-color: rgba(0,0,0,0.1);
+
+    color: #fff;
+}
+
+.brand .arrow .next,
+.brand .arrow a:hover {
+    background-color: #00BE9A;
+}
+
+.brand .arrow .iconfont {
+    font-size: 20px;
+    line-height: 20px;
+}
+
+.brand .content ul li,
+.brand .content li img {
+    width: 244px;
+    height: 306px;
+}
+
+/* ================================================== */
+/* 生鲜区域 */
+.title .right {
+    display: flex;
+}
+
+.title .right .more {
+    margin-left: 58px;
+}
+
+.title .right ul {
+    display: flex;
+    align-items: center;
+}
+
+.title .right ul li {
+
+    margin-left: 6px;
+
+    font-size: 16px;
+}
+
+.title .right ul a {
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+.title .right .active,
+.title .right li a:hover {
+    background-color: #00BE9A;
+
+    color: #fff;
+}
+
+.fresh .content {
+    display: flex;
+    justify-content: space-between;
+    height: 610px;
+}
+
+.content .left {
+    width: 248px;
+}
+
+.content .right {
+    width: 968px;
+}
+
+.content .right ul {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.content .right li {
+    position: relative;
+    overflow: hidden;
+    width: 242px;
+    height: 305px;
+    border: 2px solid #fff;
+    background-color: #fff;
+}
+
+.content .right li a {
+    width: 242px;
+}
+
+.content .right li img {
+    margin: 14.5px 21px 14.5px 21px;
+    width: 200px;
+    height: 180px;
+}
+
+.content .right .box {
+    margin: 0px 21px;
+    height: 57px;
+    width: 200px;
+}
+
+/* 产品描述文字 */
+.content .right strong {
+    text-align: left;
+    font-size: 16px;
+    line-height: 19px;
+    margin: 0;
+}
+/* 产品价格 */
+.content .right p {
+    margin: 7px 21px 0px 21px;
+    
+    text-align: left;
+    font-size: 16px;
+}
+/* 产品价格 */
+.content .right p i {
+    font-size: 22px;
+}
+
+/* 产品底部绿色区域 */
+.content .right .cover {
+    position: absolute;
+    bottom: -85.5px;
+    left: 0;
+    width: 240px;
+    height: 83.5px;
+    background-color: #00BE9A;
+    transition: all 0.3s;
+}
+
+.content .right .cover h4:first-child {
+    margin-top: 15.5px;
+    margin-bottom: 3.5px;
+
+    text-align: center;
+    font-size: 18px;
+    color: #fff;
+}
+
+.content .right .cover h4:nth-child(2) {
+    width: 120px;
+    height: 2px;
+    background-color: rgba(255,255,255,0.11);
+    margin: 0 auto;
+} 
+
+.content .right .cover h4:last-child {
+    text-align: center;
+    font-size: 13px;
+    color: #fff;
+}
+
+.content .right .cover h4:last-child .iconfont {
+    font-size: 13px;
+}
+
+/* 悬浮效果 */
+.content .right li:hover {
+    border: 2px solid #00BE9A;
+}
+.content .right li:hover .cover {
+    bottom: 0;
+}
+
+/* 服饰区域 */
+.clothes .content {
+    display: flex;
+    justify-content: space-between;
+    height: 610px;
+}
+
+/* 餐厨区域 */
+.kitchen .content {
+    display: flex;
+    justify-content: space-between;
+    height: 610px;
+}
+
+/* 居家区域 */
+.home .content {
+    display: flex;
+    justify-content: space-between;
+    height: 610px;
+}
+
+/* 最新专题区域 */
+.topic {
+    margin-bottom: 40px;
+}
+
+.topic .title {
+    margin-top: 100px;
+}
+
+.topic .topic-content {
+    height: 355px;
+}
+
+.topic .topic-content ul {
+    display: flex;
+    justify-content: space-between;
+}
+
+.topic .topic-content li {
+    width: 405px;
+    height: 355px;
+}
+
+.topic .topic-content li a{
+    display: block;
+    position: relative;
+    overflow: hidden;
+    width: 405px;
+    height: 288px;
+}
+
+.topic .topic-content img {
+    width: 405px;
+    height: 288px;
+}
+
+.topic .topic-content .txt {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+    height: 67px;
+
+    line-height: 67px;
+}
+
+.topic .topic-content .txt .like_play i {
+    margin-right: 20px;
+
+    color: #666;
+    font-size: 14px;
+}
+
+.topic .topic-content .txt .like_play .like {
+    color: #AA2113;
+}
+
+.topic .topic-content .txt div:last-child i {
+    color: #666;
+    font-size: 14px;
+}
+/* 定位区域 */
+.topic .topic-content .cover {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    left: 0;
+    bottom: -90px;
+    transition: all 0.5s;
+    padding: 20px 15px 15px 15px;
+    width: 405px;
+    height: 90px;
+    background-image: linear-gradient(180deg, rgba(137,137,137,0.00) 0%, rgba(0,0,0,0.90) 100%);
+}
+/* 左部分 */
+.topic .topic-content .cover .left {
+    color: #fff;
+}
+
+.topic .topic-content .cover .left h4 {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+/* 右部分 */
+.topic .topic-content .cover .right {
+    width: 80px;
+    height: 25px;
+    margin-top: 15px;
+    background-color: #fff;
+
+    line-height: 25px;
+    font-size: 18px;
+    text-align: center;
+    color: #AA2113;
+}
+
+.topic .topic-content a:hover .cover {
+    bottom: 0px;
+}

@@ -15,8 +15,12 @@ public class Server extends JFrame {
     public JTextArea logArea;
     private JButton startButton;
     private JButton stopButton;
+
+    // 服务器套接字
     private ServerSocket serverSocket;
+    // 服务器运行状态标志
     private boolean isRunning;
+    // 服务器端口号
     private int port;
 
     /**
@@ -85,9 +89,13 @@ public class Server extends JFrame {
      * 启动服务器的方法。
      */
     private void startServer() {
+        // 设置服务器运行状态为 true
         isRunning = true;
+        // 禁用 startButton 按钮
         startButton.setEnabled(false);
+        // 启用 stopButton 按钮
         stopButton.setEnabled(true);
+        // 在日志区域追加 "Server preparing" 消息
         logArea.append("Server preparing\n");
 
         new Thread(new Runnable() {
@@ -95,7 +103,7 @@ public class Server extends JFrame {
             @Override
             public void run() {
                 try {
-                    // 创建serverSocket
+                    // 创建serverSocket && 计算启动时间
                     long timeBegin = System.currentTimeMillis();
                     serverSocket = new ServerSocket(port);
                     long timeEnd = System.currentTimeMillis();
@@ -106,11 +114,13 @@ public class Server extends JFrame {
                     // 循环监听客户端连接
                     while (isRunning) {
                         Socket clientSocket = serverSocket.accept();
+                        // 当监听到clientSocket时，创建新的线程处理请求
                         new ServerTaskHandler(clientSocket, logArea).start();
                     }
                 } catch (IOException e) {
                     logArea.append("Error: " + e.getMessage() + "\n");
                 } finally {
+                    // 关闭服务器套接字
                     if (serverSocket != null) {
                         try {
                             serverSocket.close();
@@ -125,17 +135,22 @@ public class Server extends JFrame {
 
     /**
      * 停止服务器的方法。
-     * 将 isRunning 标志设置为 false，启用 startButton 按钮，禁用 stopButton 按钮，并在 
+     * 将 isRunning 标志设置为 false，启用 startButton 按钮，禁用 stopButton 按钮，并在
      * logArea 中追加"Server stopped" 消息。
      * 如果 serverSocket 不为空，则尝试关闭 serverSocket。
      * 如果在关闭 serverSocket 时发生 IOException，则在 logArea 中追加错误消息。
      */
     private void stopServer() {
+        // 设置服务器运行状态为 false
         isRunning = false;
+        // 启用 startButton 按钮
         startButton.setEnabled(true);
+        // 禁用 stopButton 按钮
         stopButton.setEnabled(false);
+        // 在日志区域追加 "Server stopped" 消息
         logArea.append("Server stopped\n");
 
+        // 关闭服务器套接字
         if (serverSocket != null) {
             try {
                 serverSocket.close();

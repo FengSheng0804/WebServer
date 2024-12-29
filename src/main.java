@@ -1,5 +1,5 @@
-import server.ProxyServer;
 import server.Server;
+import server.proxyServer.ProxyServer;
 
 public class main {
     /**
@@ -11,7 +11,6 @@ public class main {
      * @param args 命令行参数
      */
     public static void main(String[] args) {
-
         /**
          * 创建并启动一个新的线程来运行服务器。
          * 该线程将实例化一个端口号为8080的ProxyServer对象，并将其设置为可见。
@@ -33,7 +32,7 @@ public class main {
         Thread proxyServerThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                ProxyServer proxyServer = new ProxyServer(10000, "127.0.0.1", 8080);
+                ProxyServer proxyServer = new ProxyServer(10000, "192.168.96.238", 8080);
                 // 启动代理服务器
                 proxyServer.setVisible(true);
             }
@@ -46,7 +45,6 @@ public class main {
             serverThread.join();
         } catch (Exception e) {
             e.printStackTrace();
-
         }
     }
 }

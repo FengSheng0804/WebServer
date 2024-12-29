@@ -47,21 +47,27 @@ class ServerTaskHandler extends Thread {
                 }
             }
             String requestString = requestBuilder.toString();
+            String URL = requestLine.split(" ")[1];
 
             // 以下均为GET请求的处理
             // 处理请求头，方便后续使用
             Map<String, String> headers = processHeaders(requestString);
-            // 获取到请求资源的路径
-            String URL = requestLine.split(" ")[1];
+
+            // 检查是否为未实现的请求方法，若是则返回501错误
+            if (!requestLine.startsWith("GET")) {
+                logArea.append("Not Implemented request method: " + requestLine + "\n");
+                response501();
+                return;
+            }
 
             // 使用Server中的appendLog方法添加到文本区域中
             logArea.append("*****Request URL: " + URL + "*****\n");
 
             // 读取静态资源文件
             responseController(URL);
-
         } catch (IOException e) {
             e.printStackTrace();
+            response500();
         } finally {
             // 关闭资源
             if (br != null) {
@@ -82,6 +88,10 @@ class ServerTaskHandler extends Thread {
         }
     }
 
+    private boolean isProxyServer(Socket socket) {
+        return socket.getLocalPort() == 10000;
+    }
+
     /**
      * 处理客户端请求并返回相应的静态资源文件，相当于是一个总控。
      *
@@ -96,7 +106,7 @@ class ServerTaskHandler extends Thread {
     private void responseController(String URL) {
         // 读取静态资源文件：请求路径：/web/index.html
         String filePath = URL.substring(1); // 运行用
-        // String filePath = "src/" + URL.substring(1); //调试用
+        // String filePath = "src/" + URL.substring(1); // 调试用
 
         // 通过输入流读取文件
         try {
@@ -161,6 +171,7 @@ class ServerTaskHandler extends Thread {
      * @throws IOException 如果在读取文件或写入客户端时发生 I/O 错误
      */
     private void responseStaticResource(String filePath, String fileExtension) throws IOException {
+        // 初始化
         InputStream is = new FileInputStream(filePath);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
@@ -217,10 +228,12 @@ class ServerTaskHandler extends Thread {
      * @return 对应的Content-Type类型
      */
     private String getContentType(String fileExtension) {
-        String fileName = "./server/data/content-type.txt"; // 运行用
-        // String fileName = "./src/server/data/content-type.txt"; //调试用
+        String fileName = "./data/content-type.txt"; // 运行用
+        // String fileName = "./src/data/content-type.txt"; // 调试用
+
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
+
             while ((line = br.readLine()) != null) {
                 if (line.contains(fileExtension)) {
                     return line.split(":")[1].trim();
@@ -230,6 +243,67 @@ class ServerTaskHandler extends Thread {
             e.printStackTrace();
         }
         return "application/octet-stream"; // 默认的content_type类型是这个
+    }
+
+    // 处理请求头
+    /**
+     * 处理HTTP请求字符串中的头部信息。
+     *
+     * @param requestString 包含头部信息的HTTP请求字符串
+     * @return 一个包含头部名称作为键及其对应值的映射
+     */
+    public Map<String, String> processHeaders(String requestString) {
+        Map<String, String> headers = new HashMap<>();
+
+        String[] lines = requestString.split("\r\n");
+
+        for (String line : lines) {
+            String[] parts = line.split(": ", 2);
+            if (parts.length == 2) {
+                headers.put(parts[0], parts[1]);
+            }
+        }
+        return headers;
+    }
+
+    /**
+     * 发送400 Bad Request响应给客户端。
+     * 此方法会向客户端发送一个HTTP 400状态码和一个简单的HTML页面，
+     * 页面内容为“400 Bad Request”。
+     * 
+     * 使用PrintWriter向客户端输出响应头和响应内容。
+     * 如果在输出过程中发生IOException，会捕获并打印堆栈跟踪。
+     */
+    private void response400() {
+        try {
+            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+            pw.println("HTTP/1.1 400 Bad Request");
+            pw.println("Content-Type:text/html;charset=utf-8\n\n");
+            pw.println("<html><body><h1 style='text-align:center'>400 Bad Request</h1></body></html>");
+            pw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 发送403 Forbidden响应给客户端。
+     * 此方法会向客户端发送一个HTTP 403状态码和一个简单的HTML页面，
+     * 页面内容为“403 Forbidden”。
+     * 
+     * 使用PrintWriter向客户端输出响应头和响应内容。
+     * 如果在输出过程中发生IOException，会捕获并打印堆栈跟踪。
+     */
+    private void response403() {
+        try {
+            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+            pw.println("HTTP/1.1 403 Forbidden");
+            pw.println("Content-Type:text/html;charset=utf-8\n\n");
+            pw.println("<html><body><h1 style='text-align:center'>403 Forbidden</h1></body></html>");
+            pw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -252,39 +326,62 @@ class ServerTaskHandler extends Thread {
         }
     }
 
-    // 处理请求头
     /**
-     * 处理HTTP请求字符串中的头部信息。
-     *
-     * @param requestString 包含头部信息的HTTP请求字符串
-     * @return 一个包含头部名称作为键及其对应值的映射
+     * 发送500 Internal Server Error响应给客户端。
+     * 此方法会向客户端发送一个HTTP 500状态码和一个简单的HTML页面，
+     * 页面内容为“500 Internal Server Error”。
+     * 
+     * 使用PrintWriter向客户端输出响应头和响应内容。
+     * 如果在输出过程中发生IOException，会捕获并打印堆栈跟踪。
      */
-    public Map<String, String> processHeaders(String requestString) {
-        Map<String, String> headers = new HashMap<>();
-        String[] lines = requestString.split("\r\n");
-        for (String line : lines) {
-            String[] parts = line.split(": ", 2);
-            if (parts.length == 2) {
-                headers.put(parts[0], parts[1]);
-            }
+    private void response500() {
+        try {
+            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+            pw.println("HTTP/1.1 500 Internal Server Error");
+            pw.println("Content-Type:text/html;charset=utf-8\n\n");
+            pw.println("<html><body><h1 style='text-align:center'>500 Internal Server Error</h1></body></html>");
+            pw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return headers;
     }
 
     /**
-     * 将输入流的数据转发到输出流，仅用来传递数据，类似于一个数据管道。
-     *
-     * @param input  输入流，从中读取数据
-     * @param output 输出流，将数据写入其中
+     * 发送501 Not Implemented响应给客户端。
+     * 此方法会向客户端发送一个HTTP 501状态码和一个简单的HTML页面，
+     * 页面内容为“501 Not Implemented”。
+     * 
+     * 使用PrintWriter向客户端输出响应头和响应内容。
+     * 如果在输出过程中发生IOException，会捕获并打印堆栈跟踪。
      */
-    private void forwardData(InputStream input, OutputStream output) {
-        byte[] buffer = new byte[1024];
-        int length;
+    private void response501() {
         try {
-            while ((length = input.read(buffer)) != -1) {
-                output.write(buffer, 0, length);
-                output.flush();
-            }
+            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+            pw.println("HTTP/1.1 501 Not Implemented");
+            pw.println("Content-Type:text/html;charset=utf-8\n\n");
+            pw.println("<html><body><h1 style='text-align:center'>501 Not Implemented</h1></body></html>");
+            pw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 发送503 Service Unavailable响应给客户端。
+     * 此方法会向客户端发送一个HTTP 503状态码和一个简单的HTML页面，
+     * 页面内容为“503 Service Unavailable”。
+     * 
+     * 使用PrintWriter向客户端输出响应头和响应内容。
+     * 如果在输出过程中发生IOException，会捕获并打印堆栈跟踪。
+     */
+
+    private void response503() {
+        try {
+            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+            pw.println("HTTP/1.1 503 Service Unavailable");
+            pw.println("Content-Type:text/html;charset=utf-8\n\n");
+            pw.println("<html><body><h1 style='text-align:center'>503 Service Unavailable</h1></body></html>");
+            pw.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

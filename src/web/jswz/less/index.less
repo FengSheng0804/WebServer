@@ -1,0 +1,89 @@
+// out: ../css/index.css
+@import url(./base.less);
+
+/* 因为要频繁的使用37.5rem，所以可以将37.5rem变成一个变量 */
+@rootSize: 37.5rem;
+
+
+/* header区域 */
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 (15 / @rootSize);
+    height: (44 / @rootSize);
+
+    line-height: (44 / @rootSize);
+
+    .back .iconfont {
+        font-size: (24 / @rootSize);
+    }
+    h3 {
+        /* 添加间距使文字居中 */
+        margin-left: (30 / @rootSize);
+        font-size: (17 / @rootSize);
+    }
+    .note {
+        font-size: (15 / @rootSize);
+        color: #2CB5A5;
+    }
+}
+
+/* banner区域 */
+.banner {
+    margin-top: (30 / @rootSize);
+    margin-bottom: (34 / @rootSize);
+
+    /* 文字水平居中 */
+    text-align: center;
+
+    img {
+        width: (240 / @rootSize);
+        height: (206 / @rootSize);
+        margin-bottom: (18 / @rootSize);
+    }
+    p {
+        font-size: (16 / @rootSize);
+    }
+    p i {
+        color: #16C2A3;
+        font-style: normal;
+    }
+}
+
+/* 问诊类型区域 */
+.type {
+    padding: 0 (15 / @rootSize);
+
+    ul li {
+        display: flex;
+        justify-content: space-between;
+        padding: (15 / @rootSize) (10 / @rootSize) (10 / @rootSize) (15 / @rootSize);
+        height: (78 / @rootSize);
+        border: (1 / @rootSize) solid #EDEDED;
+        border-radius: (4 / @rootSize);
+        margin-bottom: (15 / @rootSize);
+    }
+    li .left {
+        display: flex;
+    }
+    li .left img {
+        margin-top: (4 / @rootSize);
+        margin-right: (14 / @rootSize);
+        width: (40 / @rootSize);
+        height: (40 / @rootSize);
+    }
+    li .left .txt h4{
+        margin-bottom: (4 / @rootSize);
+
+        font-size: (16 / @rootSize);
+        color: #3C3E42;
+    }
+    li .left .txt p {
+        font-size: (13 / @rootSize);
+        color: #848484;
+    }
+    li .iconfont {
+        line-height: (51 / @rootSize);
+        color: #848484;
+    }
+}
