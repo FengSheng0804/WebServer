@@ -45,7 +45,6 @@ public class main {
             serverThread.join();
         } catch (Exception e) {
             e.printStackTrace();
-
         }
     }
 }
