@@ -32,7 +32,7 @@ public class main {
         Thread proxyServerThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                ProxyServer proxyServer = new ProxyServer(10000, "127.0.0.1", 8080);
+                ProxyServer proxyServer = new ProxyServer(10000, "192.168.96.238", 8080);
                 // 启动代理服务器
                 proxyServer.setVisible(true);
             }

@@ -51,9 +51,14 @@ public class ProxyServer extends JFrame {
         whiteList.add("0:0:0:0:0:0:0:1");
         // 本地主机名
         whiteList.add("localhost");
+        // 本机局域网地址
+        whiteList.add("192.168.96.238");
+        // 手机局域网地址
+        whiteList.add("192.168.96.148");
+        // ipad局域网地址
+        whiteList.add("192.168.96.211");
 
-        // 初始化黑名单，添加一些示例IP地址
-        blackList.add("192.168.1.200");
+        // 初始化黑名单
     }
 
     public ProxyServer(int port, String targetHost, int targetPort) {
@@ -139,9 +144,10 @@ public class ProxyServer extends JFrame {
                             logArea.append("White: " + clientSocket.getInetAddress().getHostAddress() + "\n");
                             // 创建一个新的线程来处理代理服务器的任务
                             new ProxyServerTaskHandler(clientSocket, targetHost, targetPort, cache).start();
-                        } else if (isBlackListed(clientSocket.getInetAddress().getHostAddress())) {
-                            // 如果客户端在黑名单中，打印日志并关闭客户端套接字
-                            logArea.append("Black: " + clientSocket.getInetAddress().getHostAddress() + "\n");
+                        } else {
+                            // 如果客户端不在白名单中，打印日志并关闭客户端套接字
+                            logArea.append(
+                                    "Not in white list: " + clientSocket.getInetAddress().getHostAddress() + "\n");
                             clientSocket.close();
                             continue;
                         }
@@ -236,6 +242,7 @@ public class ProxyServer extends JFrame {
 
                 // 获取请求头
                 String header = request.split("\n")[0].split(" ")[1];
+                String requestURL = "http://" + targetHost + ":" + targetPort + header;
 
                 // 将请求数据保存到一个可以使用InputStream读取数据的变量中
                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -253,15 +260,14 @@ public class ProxyServer extends JFrame {
                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-                String requestURL = "http://127.0.0.1:10000" + header;
                 // 尝试从缓存获取响应
-                byte[] cachedResponse = cache.get(header);
+                byte[] cachedResponse = cache.get(requestURL);
                 if (cachedResponse != null) {
                     // 如果缓存中存在响应，则直接返回缓存的响应内容
                     InputStream cachedInputStream = new ByteArrayInputStream(cachedResponse);
                     // 将缓存的响应内容转发到客户端
                     new Thread(() -> forwardData(cachedInputStream, clientOutput)).start();
-                    logArea.append("Cache hit for URL: " + header + "\n");
+                    logArea.append("Cache hit for URL: " + requestURL + "\n");
                 } else {
                     if (cache.isFull()) {
                         // 如果缓存已满，则移除最早的缓存项
@@ -283,8 +289,8 @@ public class ProxyServer extends JFrame {
                         byte[] responseContent = responseBuffer.toByteArray();
 
                         // 缓存服务器的响应内容
-                        cache.put(header, responseContent);
-                        logArea.append("Cache miss for URL: " + header + "\n");
+                        cache.put(requestURL, responseContent);
+                        logArea.append("Cache miss for URL: " + requestURL + "\n");
                     } else {
                         // 转发到目标服务器
                         new Thread(() -> forwardData(copiedInputStream, targetOutput)).start();
