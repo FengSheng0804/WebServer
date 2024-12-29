@@ -241,54 +241,63 @@ public class ProxyServer extends JFrame {
                 String request = requestBuilder.toString();
 
                 // 获取请求头
-                String header = request.split("\n")[0].split(" ")[1];
-                String requestURL = "http://" + targetHost + ":" + targetPort + header;
-
-                // 将请求数据保存到一个可以使用InputStream读取数据的变量中
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // 转成request之后'\n'消失了，因此需要加上'\n'，否则在解析报文的会出现问题。
-                ByteArrayInputStream copiedInputStream = new ByteArrayInputStream((request + '\n').getBytes());
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-                // 尝试从缓存获取响应
-                byte[] cachedResponse = cache.get(requestURL);
-                if (cachedResponse != null) {
-                    // 如果缓存中存在响应，则直接返回缓存的响应内容
-                    InputStream cachedInputStream = new ByteArrayInputStream(cachedResponse);
-                    // 将缓存的响应内容转发到客户端
-                    forwardData(cachedInputStream, clientOutput);
-                    logArea.append("Cache hit for URL: " + requestURL + "\n");
-                } else {
-                    if (cache.isFull()) {
-                        // 如果缓存已满，则移除最早的缓存项
-                        cache.removeLeastRecentlyUsed();
-                        logArea.append("Cache is full, removing least recently used item\n");
+                String header = null;
+                String requestURL = null;
+                if (request != null) {
+                    header = request.split("\n")[0].split(" ")[1];
+                    // 若URL中包含参数，则去掉参数，因为有参数是POST请求
+                    if (header.contains("?")) {
+                        header = header.substring(0, header.indexOf("?"));
                     }
-                    // 转发到目标服务器
-                    forwardData(copiedInputStream, targetOutput);
-                    // 读取目标服务器的响应内容
-                    ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = targetInput.read(buffer)) != -1) {
-                        responseBuffer.write(buffer, 0, length);
-                        clientOutput.write(buffer, 0, length);
-                    }
-                    byte[] responseContent = responseBuffer.toByteArray();
+                    requestURL = "http://" + targetHost + ":" + targetPort + header;
 
-                    // 缓存服务器的响应内容
-                    cache.put(requestURL, responseContent);
-                    logArea.append("Cache miss for URL: " + requestURL + "\n");
+                    // 将请求数据保存到一个可以使用InputStream读取数据的变量中
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // 转成request之后"\n"消失了，因此需要加上"\n"，否则在解析报文的会出现问题。
+                    // 注意：应该使用"\n"而不是'\n'！！！！！！！！！！为什么？？？？？
+                    ByteArrayInputStream copiedInputStream = new ByteArrayInputStream((request + "\n").getBytes());
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                    // 尝试从缓存获取响应
+                    byte[] cachedResponse = cache.get(requestURL);
+                    if (cachedResponse != null) {
+                        // 如果缓存中存在响应，则直接返回缓存的响应内容
+                        InputStream cachedInputStream = new ByteArrayInputStream(cachedResponse);
+                        // 将缓存的响应内容转发到客户端
+                        forwardData(cachedInputStream, clientOutput);
+                        logArea.append("Cache hit for URL: " + requestURL + "\n");
+                    } else {
+                        if (cache.isFull()) {
+                            // 如果缓存已满，则移除最早的缓存项
+                            cache.removeLeastRecentlyUsed();
+                            logArea.append("Cache is full, removing least recently used item\n");
+                        }
+                        // 转发到目标服务器
+                        forwardData(copiedInputStream, targetOutput);
+                        // 读取目标服务器的响应内容
+                        ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = targetInput.read(buffer)) != -1) {
+                            responseBuffer.write(buffer, 0, length);
+                            clientOutput.write(buffer, 0, length);
+                        }
+                        byte[] responseContent = responseBuffer.toByteArray();
+
+                        // 缓存服务器的响应内容
+                        cache.put(requestURL, responseContent);
+                        logArea.append("Cache miss for URL: " + requestURL + "\n");
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();

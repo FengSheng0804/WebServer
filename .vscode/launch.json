@@ -15,14 +15,8 @@
             "name": "main",
             "request": "launch",
             "mainClass": "main",
-            "projectName": "WebServer_c4507c39"
+            "projectName": "WebServer_c4507c39",
+            "cwd": "${workspaceFolder}/src"
         },
-        {
-            "type": "java",
-            "name": "Delete",
-            "request": "launch",
-            "mainClass": "utils.Delete",
-            "projectName": "WebServer_c4507c39"
-        }
     ]
 }
