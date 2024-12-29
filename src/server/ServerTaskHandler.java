@@ -55,6 +55,13 @@ class ServerTaskHandler extends Thread {
             // System.out.println(requestLine);
             String URL = requestLine.split(" ")[1];
 
+            // 检查是否直接访问端口8080
+            if (clientSocket.getLocalPort() == 8080) {
+                logArea.append("Direct access to port 8080 is not allowed\n");
+                response403();
+                return;
+            }
+
             // 使用Server中的appendLog方法添加到文本区域中
             logArea.append("*****Request URL: " + URL + "*****\n");
 
@@ -250,6 +257,26 @@ class ServerTaskHandler extends Thread {
             pw.println("HTTP/1.1 404 Not Found");
             pw.println("Content-Type:text/html;charset=utf-8\n\n");
             pw.println("<html><body><h1 style='text-align:center'>404 Not Found</h1></body></html>");
+            pw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 发送403 Forbidden响应给客户端。
+     * 此方法会向客户端发送一个HTTP 403状态码和一个简单的HTML页面，
+     * 页面内容为“403 Forbidden”。
+     * 
+     * 使用PrintWriter向客户端输出响应头和响应内容。
+     * 如果在输出过程中发生IOException，会捕获并打印堆栈跟踪。
+     */
+    private void response403() {
+        try {
+            PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
+            pw.println("HTTP/1.1 403 Forbidden");
+            pw.println("Content-Type:text/html;charset=utf-8\n\n");
+            pw.println("<html><body><h1 style='text-align:center'>403 Forbidden</h1></body></html>");
             pw.flush();
         } catch (IOException e) {
             e.printStackTrace();
