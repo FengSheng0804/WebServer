@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.FileReader;
 
 /**
@@ -59,6 +60,18 @@ class ServerTaskHandler extends Thread {
             String URL = null;
             if (requestLine != null) {
                 URL = requestLine.split(" ")[1];
+            }
+
+            // 检测是否为代理服务器
+            String ProxyServerIP = isProxyServer(requestString);
+            if (ProxyServerIP != null) {
+                logArea.append("Proxy Server Detected, IP is " + ProxyServerIP);
+            } else {
+                logArea.append("The request did'nt come from ProxyServer");
+
+                // 为了测试代理服务器，我们将拒绝所有非代理服务器的请求
+                response403();
+                return;
             }
 
             // 以下均为GET请求的处理
@@ -139,7 +152,6 @@ class ServerTaskHandler extends Thread {
         try {
             String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
             responseStaticResource(filePath, fileExtension, compressMethod);
-
         } catch (IOException e) {
             e.printStackTrace();
             response404();
@@ -368,8 +380,12 @@ class ServerTaskHandler extends Thread {
         return headers;
     }
 
-    private boolean isProxyServer(Socket socket) {
-        return socket.getLocalPort() == 10000;
+    // 检测是否为代理服务器
+    public static String isProxyServer(String message) {
+        if (message.contains("via")) {
+            return message.split("via: ")[1].split(" ")[1];
+        }
+        return null;
     }
 
     /**
