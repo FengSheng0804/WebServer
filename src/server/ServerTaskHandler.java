@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.FileReader;
 
 /**
@@ -101,8 +100,14 @@ class ServerTaskHandler extends Thread {
                     }
                 }
 
-                // 进入静态资源文件总控方法
-                responseController(URL, compressMethod);
+                // 进入静态资源文件总控方法，并接收返回值判断文件是否存在
+                if (responseController(URL, compressMethod)) {
+                    logArea.append("File: " + URL + " Exist\n");
+                } else {
+                    logArea.append("File: " + URL + " Didn't Exist\n");
+                    response404();
+                    return;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,7 +143,10 @@ class ServerTaskHandler extends Thread {
      *
      * @throws IOException 如果读取文件时发生IO错误
      */
-    private void responseController(String URL, String compressMethod) throws IOException {
+    @SuppressWarnings("finally")
+    private boolean responseController(String URL, String compressMethod) throws IOException {
+        boolean isExist = false;
+
         // 获取当前工作目录，如果是运行目录的话会在src中，如果是调试目录的话会在src的上一级
         String currentDir = System.getProperty("user.dir");
         String filePath = null;
@@ -152,9 +160,11 @@ class ServerTaskHandler extends Thread {
         try {
             String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
             responseStaticResource(filePath, fileExtension, compressMethod);
+            isExist = true;
         } catch (IOException e) {
             e.printStackTrace();
-            response404();
+        } finally {
+            return isExist;
         }
     }
 
