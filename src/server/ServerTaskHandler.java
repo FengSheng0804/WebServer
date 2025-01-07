@@ -61,6 +61,18 @@ class ServerTaskHandler extends Thread {
                 URL = requestLine.split(" ")[1];
             }
 
+            // 检测是否为代理服务器
+            String ProxyServerIP = isProxyServer(requestString);
+            if (ProxyServerIP != null) {
+                logArea.append("Proxy Server Detected, IP is " + ProxyServerIP);
+            } else {
+                logArea.append("The request did'nt come from ProxyServer");
+
+                // 为了测试代理服务器，我们将拒绝所有非代理服务器的请求
+                response403();
+                return;
+            }
+
             // 以下均为GET请求的处理
             // 检查是否为未实现的请求方法，若是则返回501错误
             if (requestLine != null && !requestLine.startsWith("GET")) {
@@ -88,8 +100,14 @@ class ServerTaskHandler extends Thread {
                     }
                 }
 
-                // 进入静态资源文件总控方法
-                responseController(URL, compressMethod);
+                // 进入静态资源文件总控方法，并接收返回值判断文件是否存在
+                if (responseController(URL, compressMethod)) {
+                    logArea.append("File: " + URL + " Exist\n");
+                } else {
+                    logArea.append("File: " + URL + " Didn't Exist\n");
+                    response404();
+                    return;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,7 +143,10 @@ class ServerTaskHandler extends Thread {
      *
      * @throws IOException 如果读取文件时发生IO错误
      */
-    private void responseController(String URL, String compressMethod) throws IOException {
+    @SuppressWarnings("finally")
+    private boolean responseController(String URL, String compressMethod) throws IOException {
+        boolean isExist = false;
+
         // 获取当前工作目录，如果是运行目录的话会在src中，如果是调试目录的话会在src的上一级
         String currentDir = System.getProperty("user.dir");
         String filePath = null;
@@ -139,10 +160,11 @@ class ServerTaskHandler extends Thread {
         try {
             String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1);
             responseStaticResource(filePath, fileExtension, compressMethod);
-
+            isExist = true;
         } catch (IOException e) {
             e.printStackTrace();
-            response404();
+        } finally {
+            return isExist;
         }
     }
 
@@ -368,8 +390,12 @@ class ServerTaskHandler extends Thread {
         return headers;
     }
 
-    private boolean isProxyServer(Socket socket) {
-        return socket.getLocalPort() == 10000;
+    // 检测是否为代理服务器
+    public static String isProxyServer(String message) {
+        if (message.contains("via")) {
+            return message.split("via: ")[1].split(" ")[1];
+        }
+        return null;
     }
 
     /**
