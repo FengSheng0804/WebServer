@@ -66,8 +66,6 @@ class ServerTaskHandler extends Thread {
             if (ProxyServerIP != null) {
                 logArea.append("Proxy Server Detected, IP is " + ProxyServerIP);
             } else {
-                logArea.append("The request did'nt come from ProxyServer");
-
                 // 为了测试代理服务器，我们将拒绝所有非代理服务器的请求
                 response403();
                 return;
@@ -151,9 +149,9 @@ class ServerTaskHandler extends Thread {
         String currentDir = System.getProperty("user.dir");
         String filePath = null;
         if (currentDir.endsWith("src")) {
-            filePath = URL.substring(1);
+            filePath = "../" + URL.substring(1);
         } else {
-            filePath = "src" + URL;
+            filePath = URL;
         }
 
         // 通过输入流读取文件

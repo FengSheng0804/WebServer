@@ -6,11 +6,15 @@ import java.io.FilenameFilter;
 //清空所有javac编译生成的.class文件
 public class Delete {
 	public static void main(String[] args) {
-		String path = "src";
+		String src_path = "src";
 		// 删除指定路径下的所有.class和.gz文件
-		deleteFiles(path);
+		deleteFiles(src_path);
 		// 递归删除子目录中的.class和.gz文件
-		deleteSubFiles(path);
+		deleteSubFiles(src_path);
+
+		String web_path = "web";
+		deleteFiles(web_path);
+		deleteSubFiles(web_path);
 	}
 
 	// 递归删除子目录中的.class文件
