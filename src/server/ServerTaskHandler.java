@@ -151,9 +151,9 @@ class ServerTaskHandler extends Thread {
         String currentDir = System.getProperty("user.dir");
         String filePath = null;
         if (currentDir.endsWith("src")) {
-            filePath = URL.substring(1);
+            filePath = "../" + URL.substring(1);
         } else {
-            filePath = "src" + URL;
+            filePath = URL;
         }
 
         // 通过输入流读取文件
