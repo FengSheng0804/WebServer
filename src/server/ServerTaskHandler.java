@@ -66,8 +66,6 @@ class ServerTaskHandler extends Thread {
             if (ProxyServerIP != null) {
                 logArea.append("Proxy Server Detected, IP is " + ProxyServerIP);
             } else {
-                logArea.append("The request did'nt come from ProxyServer");
-
                 // 为了测试代理服务器，我们将拒绝所有非代理服务器的请求
                 response403();
                 return;
