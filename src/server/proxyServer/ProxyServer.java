@@ -245,9 +245,14 @@ public class ProxyServer extends JFrame {
                 // 获取请求头
                 String header = null;
                 String requestURL = null;
-                if (request != null) {
-                    header = request.split("\n")[0].split(" ")[1];
+                if (request != null && !request.equals("")) {
+                    try {
+                        header = request.split("\n")[0].split(" ")[1];
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     // 若URL中包含参数，则去掉参数，因为有参数是POST请求
+
                     if (header.contains("?")) {
                         header = header.substring(0, header.indexOf("?"));
                     }
