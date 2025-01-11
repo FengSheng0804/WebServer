@@ -57,6 +57,8 @@ public class ProxyServer extends JFrame {
         whiteList.add("192.168.96.148");
         // ipad局域网地址
         whiteList.add("192.168.96.211");
+        //
+        whiteList.add("192.168.96.116");
 
         // 初始化黑名单
     }
@@ -297,9 +299,14 @@ public class ProxyServer extends JFrame {
                         }
                         byte[] responseContent = responseBuffer.toByteArray();
 
-                        // 缓存服务器的响应内容
-                        cache.put(requestURL, responseContent);
-                        logArea.append("Cache miss for URL: " + requestURL + "\n");
+                        // 如果响应状态码不是404或403，则缓存服务器的响应内容
+                        String responseString = new String(responseContent);
+                        if (responseString.split("Response: ")[1].split(" ")[1] != "404"
+                                || responseString.split("Response: ")[1].split(" ")[1] != "403") {
+                            // 缓存服务器的响应内容
+                            cache.put(requestURL, responseContent);
+                            logArea.append("Cache miss for URL: " + requestURL + "\n");
+                        }
                     }
                 }
             } catch (IOException e) {
