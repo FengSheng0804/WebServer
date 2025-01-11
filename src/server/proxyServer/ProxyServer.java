@@ -18,49 +18,49 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ProxyServer extends JFrame {
-    // æ—¥å¿—åŒºåŸŸï¼Œç”¨äºæ˜¾ç¤ºä»£ç†æœåŠ¡å™¨çš„æ—¥å¿—ä¿¡æ¯
+    // ÈÕÖ¾ÇøÓò£¬ÓÃÓÚÏÔÊ¾´úÀí·şÎñÆ÷µÄÈÕÖ¾ĞÅÏ¢
     public static JTextArea logArea;
-    // å¯åŠ¨æŒ‰é’®ï¼Œç”¨äºå¯åŠ¨ä»£ç†æœåŠ¡å™¨
+    // Æô¶¯°´Å¥£¬ÓÃÓÚÆô¶¯´úÀí·şÎñÆ÷
     private JButton startButton;
-    // åœæ­¢æŒ‰é’®ï¼Œç”¨äºåœæ­¢ä»£ç†æœåŠ¡å™¨
+    // Í£Ö¹°´Å¥£¬ÓÃÓÚÍ£Ö¹´úÀí·şÎñÆ÷
     private JButton stopButton;
-    // æœåŠ¡å™¨å¥—æ¥å­—ï¼Œç”¨äºç›‘å¬å®¢æˆ·ç«¯è¿æ¥
+    // ·şÎñÆ÷Ì×½Ó×Ö£¬ÓÃÓÚ¼àÌı¿Í»§¶ËÁ¬½Ó
     private ServerSocket serverSocket;
-    // ä»£ç†æœåŠ¡å™¨çš„è¿è¡ŒçŠ¶æ€
+    // ´úÀí·şÎñÆ÷µÄÔËĞĞ×´Ì¬
     private boolean isRunning;
 
-    // ç™½åå•é›†åˆï¼Œå­˜å‚¨å…è®¸è®¿é—®çš„IPåœ°å€
+    // °×Ãûµ¥¼¯ºÏ£¬´æ´¢ÔÊĞí·ÃÎÊµÄIPµØÖ·
     private static Set<String> whiteList = new HashSet<>();
-    // é»‘åå•é›†åˆï¼Œå­˜å‚¨ç¦æ­¢è®¿é—®çš„IPåœ°å€
+    // ºÚÃûµ¥¼¯ºÏ£¬´æ´¢½ûÖ¹·ÃÎÊµÄIPµØÖ·
     private static Set<String> blackList = new HashSet<>();
-    // ä»£ç†æœåŠ¡å™¨ç›‘å¬çš„ç«¯å£
+    // ´úÀí·şÎñÆ÷¼àÌıµÄ¶Ë¿Ú
     private int port;
-    // ç›®æ ‡æœåŠ¡å™¨çš„ä¸»æœºå
+    // Ä¿±ê·şÎñÆ÷µÄÖ÷»úÃû
     private String targetHost;
-    // ç›®æ ‡æœåŠ¡å™¨çš„ç«¯å£
+    // Ä¿±ê·şÎñÆ÷µÄ¶Ë¿Ú
     private int targetPort;
-    // æ·»åŠ ç¼“å­˜æœºåˆ¶
+    // Ìí¼Ó»º´æ»úÖÆ
     private ProxyServerCache cache;
 
     static {
-        // åˆå§‹åŒ–ç™½åå•ï¼Œæ·»åŠ ä¸€äº›ç¤ºä¾‹IPåœ°å€
+        // ³õÊ¼»¯°×Ãûµ¥£¬Ìí¼ÓÒ»Ğ©Ê¾ÀıIPµØÖ·
 
-        // IPv4çš„æœ¬åœ°å›ç¯åœ°å€
+        // IPv4µÄ±¾µØ»Ø»·µØÖ·
         whiteList.add("127.0.0.1");
-        // IPv6çš„æœ¬åœ°å›ç¯åœ°å€
+        // IPv6µÄ±¾µØ»Ø»·µØÖ·
         whiteList.add("0:0:0:0:0:0:0:1");
-        // æœ¬åœ°ä¸»æœºå
+        // ±¾µØÖ÷»úÃû
         whiteList.add("localhost");
-        // æœ¬æœºå±€åŸŸç½‘åœ°å€
+        // ±¾»ú¾ÖÓòÍøµØÖ·
         whiteList.add("192.168.96.238");
-        // æ‰‹æœºå±€åŸŸç½‘åœ°å€
+        // ÊÖ»ú¾ÖÓòÍøµØÖ·
         whiteList.add("192.168.96.148");
-        // ipadå±€åŸŸç½‘åœ°å€
+        // ipad¾ÖÓòÍøµØÖ·
         whiteList.add("192.168.96.211");
         //
         whiteList.add("192.168.96.116");
 
-        // åˆå§‹åŒ–é»‘åå•
+        // ³õÊ¼»¯ºÚÃûµ¥
     }
 
     public ProxyServer(int port, String targetHost, int targetPort) {
@@ -68,39 +68,39 @@ public class ProxyServer extends JFrame {
         this.targetHost = targetHost;
         this.targetPort = targetPort;
         initializeGUI();
-        // åˆå§‹åŒ–ç¼“å­˜
+        // ³õÊ¼»¯»º´æ
         cache = new ProxyServerCache();
     }
 
     /**
-     * åˆå§‹åŒ–å›¾å½¢ç”¨æˆ·ç•Œé¢ï¼ˆGUIï¼‰ã€‚
+     * ³õÊ¼»¯Í¼ĞÎÓÃ»§½çÃæ£¨GUI£©¡£
      */
     private void initializeGUI() {
-        // è®¾ç½®çª—å£æ ‡é¢˜ã€å¤§å°ã€å…³é—­æ–¹å¼ã€å¸ƒå±€
+        // ÉèÖÃ´°¿Ú±êÌâ¡¢´óĞ¡¡¢¹Ø±Õ·½Ê½¡¢²¼¾Ö
         setTitle("Proxy Server");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // æ·»åŠ æ—¥å¿—åŒºåŸŸ
+        // Ìí¼ÓÈÕÖ¾ÇøÓò
         logArea = new JTextArea();
         logArea.setEditable(false);
         logArea.setFont(new Font("Serif", Font.PLAIN, 20));
         JScrollPane scrollPane = new JScrollPane(logArea);
         add(scrollPane, BorderLayout.CENTER);
 
-        // æ·»åŠ æŒ‰é’®åŒºåŸŸ
+        // Ìí¼Ó°´Å¥ÇøÓò
         JPanel panel = new JPanel();
         startButton = new JButton("Start Proxy Server");
         stopButton = new JButton("Stop Proxy Server");
         stopButton.setEnabled(false);
 
-        // æ·»åŠ æŒ‰é’®åˆ°é¢æ¿
+        // Ìí¼Ó°´Å¥µ½Ãæ°å
         panel.add(startButton);
         panel.add(stopButton);
         add(panel, BorderLayout.SOUTH);
 
-        // æ·»åŠ æŒ‰é’®äº‹ä»¶ç›‘å¬startButton
+        // Ìí¼Ó°´Å¥ÊÂ¼ş¼àÌıstartButton
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -108,7 +108,7 @@ public class ProxyServer extends JFrame {
             }
         });
 
-        // æ·»åŠ æŒ‰é’®äº‹ä»¶ç›‘å¬stopButton
+        // Ìí¼Ó°´Å¥ÊÂ¼ş¼àÌıstopButton
         stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -118,36 +118,36 @@ public class ProxyServer extends JFrame {
     }
 
     /**
-     * å¯åŠ¨ä»£ç†æœåŠ¡å™¨ã€‚
+     * Æô¶¯´úÀí·şÎñÆ÷¡£
      */
     public void startServer() {
-        // è®¾ç½®ä»£ç†æœåŠ¡å™¨çš„è¿è¡ŒçŠ¶æ€ä¸º true
+        // ÉèÖÃ´úÀí·şÎñÆ÷µÄÔËĞĞ×´Ì¬Îª true
         isRunning = true;
-        // ç¦ç”¨å¯åŠ¨æŒ‰é’®
+        // ½ûÓÃÆô¶¯°´Å¥
         startButton.setEnabled(false);
-        // å¯ç”¨åœæ­¢æŒ‰é’®
+        // ÆôÓÃÍ£Ö¹°´Å¥
         stopButton.setEnabled(true);
-        // åœ¨æ—¥å¿—åŒºåŸŸä¸­æ·»åŠ å¯åŠ¨å‡†å¤‡ä¿¡æ¯
+        // ÔÚÈÕÖ¾ÇøÓòÖĞÌí¼ÓÆô¶¯×¼±¸ĞÅÏ¢
         logArea.append("Proxy server preparing\n");
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    // å¯åŠ¨ä»£ç†æœåŠ¡å™¨
+                    // Æô¶¯´úÀí·şÎñÆ÷
                     serverSocket = new ServerSocket(port);
                     logArea.append("Proxy server started on port " + port + "\n");
 
-                    // å¾ªç¯ç›‘å¬
+                    // Ñ­»·¼àÌı
                     while (isRunning) {
                         Socket clientSocket = serverSocket.accept();
                         if (isWhiteListed(clientSocket.getInetAddress().getHostAddress())) {
-                            // å¦‚æœå®¢æˆ·ç«¯åœ¨ç™½åå•ä¸­ï¼Œæ‰“å°æ—¥å¿—å¹¶åˆ›å»ºä¸€ä¸ªæ–°çš„çº¿ç¨‹æ¥å¤„ç†ä»£ç†æœåŠ¡å™¨çš„ä»»åŠ¡
+                            // Èç¹û¿Í»§¶ËÔÚ°×Ãûµ¥ÖĞ£¬´òÓ¡ÈÕÖ¾²¢´´½¨Ò»¸öĞÂµÄÏß³ÌÀ´´¦Àí´úÀí·şÎñÆ÷µÄÈÎÎñ
                             logArea.append("White: " + clientSocket.getInetAddress().getHostAddress() + "\n");
-                            // åˆ›å»ºä¸€ä¸ªæ–°çš„çº¿ç¨‹æ¥å¤„ç†ä»£ç†æœåŠ¡å™¨çš„ä»»åŠ¡
+                            // ´´½¨Ò»¸öĞÂµÄÏß³ÌÀ´´¦Àí´úÀí·şÎñÆ÷µÄÈÎÎñ
                             new ProxyServerTaskHandler(clientSocket, targetHost, targetPort, cache).start();
                         } else {
-                            // å¦‚æœå®¢æˆ·ç«¯ä¸åœ¨ç™½åå•ä¸­ï¼Œæ‰“å°æ—¥å¿—å¹¶å…³é—­å®¢æˆ·ç«¯å¥—æ¥å­—
+                            // Èç¹û¿Í»§¶Ë²»ÔÚ°×Ãûµ¥ÖĞ£¬´òÓ¡ÈÕÖ¾²¢¹Ø±Õ¿Í»§¶ËÌ×½Ó×Ö
                             logArea.append(
                                     "Not in white list: " + clientSocket.getInetAddress().getHostAddress() + "\n");
                             clientSocket.close();
@@ -157,7 +157,7 @@ public class ProxyServer extends JFrame {
                 } catch (IOException e) {
                     logArea.append("Error: " + e.getMessage() + "\n");
                 } finally {
-                    // å…³é—­æœåŠ¡å™¨å¥—æ¥å­—
+                    // ¹Ø±Õ·şÎñÆ÷Ì×½Ó×Ö
                     if (serverSocket != null) {
                         try {
                             serverSocket.close();
@@ -171,18 +171,18 @@ public class ProxyServer extends JFrame {
     }
 
     /**
-     * åœæ­¢ä»£ç†æœåŠ¡å™¨çš„æ–¹æ³•ã€‚
+     * Í£Ö¹´úÀí·şÎñÆ÷µÄ·½·¨¡£
      */
     public void stopServer() {
-        // è®¾ç½®ä»£ç†æœåŠ¡å™¨çš„è¿è¡ŒçŠ¶æ€ä¸º false
+        // ÉèÖÃ´úÀí·şÎñÆ÷µÄÔËĞĞ×´Ì¬Îª false
         isRunning = false;
-        // å¯ç”¨å¯åŠ¨æŒ‰é’®
+        // ÆôÓÃÆô¶¯°´Å¥
         startButton.setEnabled(true);
-        // ç¦ç”¨åœæ­¢æŒ‰é’®
+        // ½ûÓÃÍ£Ö¹°´Å¥
         stopButton.setEnabled(false);
-        // åœ¨æ—¥å¿—åŒºåŸŸä¸­æ·»åŠ åœæ­¢ä¿¡æ¯
+        // ÔÚÈÕÖ¾ÇøÓòÖĞÌí¼ÓÍ£Ö¹ĞÅÏ¢
         logArea.append("Proxy server stopped\n");
-        // å…³é—­æœåŠ¡å™¨å¥—æ¥å­—
+        // ¹Ø±Õ·şÎñÆ÷Ì×½Ó×Ö
         if (serverSocket != null) {
             try {
                 serverSocket.close();
@@ -192,28 +192,28 @@ public class ProxyServer extends JFrame {
         }
     }
 
-    // æ˜¯å¦åœ¨ç™½åå•ä¸­
+    // ÊÇ·ñÔÚ°×Ãûµ¥ÖĞ
     private boolean isWhiteListed(String clientIP) {
         return whiteList.contains(clientIP);
     }
 
-    // æ˜¯å¦åœ¨é»‘åå•ä¸­
+    // ÊÇ·ñÔÚºÚÃûµ¥ÖĞ
     private boolean isBlackListed(String clientIP) {
         return blackList.contains(clientIP);
     }
 
-    // å†…éƒ¨ç±»ProxyServerTaskHandlerï¼šå¯¹ä»£ç†æœåŠ¡å™¨çš„ä»»åŠ¡è¿›è¡Œå¤„ç†
+    // ÄÚ²¿ÀàProxyServerTaskHandler£º¶Ô´úÀí·şÎñÆ÷µÄÈÎÎñ½øĞĞ´¦Àí
     private static class ProxyServerTaskHandler extends Thread {
-        // å®¢æˆ·ç«¯å¥—æ¥å­—
+        // ¿Í»§¶ËÌ×½Ó×Ö
         private Socket clientSocket;
-        // ç›®æ ‡æœåŠ¡å™¨çš„ä¸»æœºå
+        // Ä¿±ê·şÎñÆ÷µÄÖ÷»úÃû
         private String targetHost;
-        // ç›®æ ‡æœåŠ¡å™¨çš„ç«¯å£
+        // Ä¿±ê·şÎñÆ÷µÄ¶Ë¿Ú
         private int targetPort;
-        // æ·»åŠ ç¼“å­˜æœºåˆ¶
+        // Ìí¼Ó»º´æ»úÖÆ
         private ProxyServerCache cache;
 
-        // æ„é€ å‡½æ•°
+        // ¹¹Ôìº¯Êı
         public ProxyServerTaskHandler(Socket clientSocket, String targetHost, int targetPort, ProxyServerCache cache) {
             this.clientSocket = clientSocket;
             this.targetHost = targetHost;
@@ -224,16 +224,16 @@ public class ProxyServer extends JFrame {
         @Override
         public void run() {
             try (Socket targetSocket = new Socket(targetHost, targetPort)) {
-                // ç”¨äºè¯»å–å®¢æˆ·ç«¯å‘é€çš„æ•°æ®ã€‚
+                // ÓÃÓÚ¶ÁÈ¡¿Í»§¶Ë·¢ËÍµÄÊı¾İ¡£
                 InputStream clientInput = clientSocket.getInputStream();
-                // ç”¨äºå‘å®¢æˆ·ç«¯å‘é€æ•°æ®ã€‚
+                // ÓÃÓÚÏò¿Í»§¶Ë·¢ËÍÊı¾İ¡£
                 OutputStream clientOutput = clientSocket.getOutputStream();
-                // ç”¨äºè¯»å–ç›®æ ‡æœåŠ¡å™¨å‘é€çš„æ•°æ®ã€‚
+                // ÓÃÓÚ¶ÁÈ¡Ä¿±ê·şÎñÆ÷·¢ËÍµÄÊı¾İ¡£
                 InputStream targetInput = targetSocket.getInputStream();
-                // ç”¨äºå‘ç›®æ ‡æœåŠ¡å™¨å‘é€æ•°æ®ã€‚
+                // ÓÃÓÚÏòÄ¿±ê·şÎñÆ÷·¢ËÍÊı¾İ¡£
                 OutputStream targetOutput = targetSocket.getOutputStream();
 
-                // è¯»å–å®¢æˆ·ç«¯å‘é€çš„æ•°æ®å¹¶å°†å…¶å†å†™å›å®¢æˆ·ç«¯
+                // ¶ÁÈ¡¿Í»§¶Ë·¢ËÍµÄÊı¾İ²¢½«ÆäÔÙĞ´»Ø¿Í»§¶Ë
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientInput));
                 StringBuilder requestBuilder = new StringBuilder();
                 String line;
@@ -242,7 +242,7 @@ public class ProxyServer extends JFrame {
                 }
                 String request = requestBuilder.toString();
 
-                // è·å–è¯·æ±‚å¤´
+                // »ñÈ¡ÇëÇóÍ·
                 String header = null;
                 String requestURL = null;
                 if (request != null && !request.equals("")) {
@@ -251,23 +251,23 @@ public class ProxyServer extends JFrame {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    // è‹¥URLä¸­åŒ…å«å‚æ•°ï¼Œåˆ™å»æ‰å‚æ•°ï¼Œå› ä¸ºæœ‰å‚æ•°æ˜¯POSTè¯·æ±‚
+                    // ÈôURLÖĞ°üº¬²ÎÊı£¬ÔòÈ¥µô²ÎÊı£¬ÒòÎªÓĞ²ÎÊıÊÇPOSTÇëÇó
 
                     if (header.contains("?")) {
                         header = header.substring(0, header.indexOf("?"));
                     }
                     requestURL = "http://" + targetHost + ":" + targetPort + header;
 
-                    // å°†è¯·æ±‚æ•°æ®ä¿å­˜åˆ°ä¸€ä¸ªå¯ä»¥ä½¿ç”¨InputStreamè¯»å–æ•°æ®çš„å˜é‡ä¸­
+                    // ½«ÇëÇóÊı¾İ±£´æµ½Ò»¸ö¿ÉÒÔÊ¹ÓÃInputStream¶ÁÈ¡Êı¾İµÄ±äÁ¿ÖĞ
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    // è½¬æˆrequestä¹‹å"\n"æ¶ˆå¤±äº†ï¼Œå› æ­¤éœ€è¦åŠ ä¸Š"\n"ï¼Œå¦åˆ™åœ¨è§£ææŠ¥æ–‡çš„ä¼šå‡ºç°é—®é¢˜ã€‚
-                    // æ³¨æ„ï¼šåº”è¯¥ä½¿ç”¨"\n"è€Œä¸æ˜¯'\n'ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ï¼ä¸ºä»€ä¹ˆï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿ
-                    // æ·»åŠ ä»£ç†æœåŠ¡å™¨çš„ç›¸å…³å¤´å­—æ®µ
+                    // ×ª³ÉrequestÖ®ºó"\n"ÏûÊ§ÁË£¬Òò´ËĞèÒª¼ÓÉÏ"\n"£¬·ñÔòÔÚ½âÎö±¨ÎÄµÄ»á³öÏÖÎÊÌâ¡£
+                    // ×¢Òâ£ºÓ¦¸ÃÊ¹ÓÃ"\n"¶ø²»ÊÇ'\n'£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡ÎªÊ²Ã´£¿£¿£¿£¿£¿
+                    // Ìí¼Ó´úÀí·şÎñÆ÷µÄÏà¹ØÍ·×Ö¶Î
                     String proxyHeader = "via: HTTP:/1.1 192.168.96.238\n";
                     ByteArrayInputStream copiedInputStream = new ByteArrayInputStream(
                             (request + proxyHeader + "\n").getBytes());
@@ -278,23 +278,23 @@ public class ProxyServer extends JFrame {
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-                    // å°è¯•ä»ç¼“å­˜è·å–å“åº”
+                    // ³¢ÊÔ´Ó»º´æ»ñÈ¡ÏìÓ¦
                     byte[] cachedResponse = cache.get(requestURL);
                     if (cachedResponse != null) {
-                        // å¦‚æœç¼“å­˜ä¸­å­˜åœ¨å“åº”ï¼Œåˆ™ç›´æ¥è¿”å›ç¼“å­˜çš„å“åº”å†…å®¹
+                        // Èç¹û»º´æÖĞ´æÔÚÏìÓ¦£¬ÔòÖ±½Ó·µ»Ø»º´æµÄÏìÓ¦ÄÚÈİ
                         InputStream cachedInputStream = new ByteArrayInputStream(cachedResponse);
-                        // å°†ç¼“å­˜çš„å“åº”å†…å®¹è½¬å‘åˆ°å®¢æˆ·ç«¯
+                        // ½«»º´æµÄÏìÓ¦ÄÚÈİ×ª·¢µ½¿Í»§¶Ë
                         forwardData(cachedInputStream, clientOutput);
                         logArea.append("Cache hit for URL: " + requestURL + "\n");
                     } else {
                         if (cache.isFull()) {
-                            // å¦‚æœç¼“å­˜å·²æ»¡ï¼Œåˆ™ç§»é™¤æœ€æ—©çš„ç¼“å­˜é¡¹
+                            // Èç¹û»º´æÒÑÂú£¬ÔòÒÆ³ı×îÔçµÄ»º´æÏî
                             cache.removeLeastRecentlyUsed();
                             logArea.append("Cache is full, removing least recently used item\n");
                         }
-                        // è½¬å‘åˆ°ç›®æ ‡æœåŠ¡å™¨
+                        // ×ª·¢µ½Ä¿±ê·şÎñÆ÷
                         forwardData(copiedInputStream, targetOutput);
-                        // è¯»å–ç›®æ ‡æœåŠ¡å™¨çš„å“åº”å†…å®¹
+                        // ¶ÁÈ¡Ä¿±ê·şÎñÆ÷µÄÏìÓ¦ÄÚÈİ
                         ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
                         byte[] buffer = new byte[1024];
                         int length;
@@ -304,11 +304,10 @@ public class ProxyServer extends JFrame {
                         }
                         byte[] responseContent = responseBuffer.toByteArray();
 
-                        // å¦‚æœå“åº”çŠ¶æ€ç ä¸æ˜¯404æˆ–403ï¼Œåˆ™ç¼“å­˜æœåŠ¡å™¨çš„å“åº”å†…å®¹
+                        // Èç¹ûÏìÓ¦×´Ì¬Âë²»ÊÇ404»ò403£¬Ôò»º´æ·şÎñÆ÷µÄÏìÓ¦ÄÚÈİ
                         String statusCode = new String(responseContent).split(" ")[1];
                         if (!statusCode.equals("404") && !statusCode.equals("403")) {
-
-                            // ç¼“å­˜æœåŠ¡å™¨çš„å“åº”å†…å®¹
+                            // »º´æ·şÎñÆ÷µÄÏìÓ¦ÄÚÈİ
                             cache.put(requestURL, responseContent);
                             logArea.append("Cache miss for URL: " + requestURL + "\n");
                         }
@@ -317,7 +316,7 @@ public class ProxyServer extends JFrame {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                // å…³é—­å®¢æˆ·ç«¯å¥—æ¥å­—
+                // ¹Ø±Õ¿Í»§¶ËÌ×½Ó×Ö
                 try {
                     clientSocket.close();
                 } catch (IOException e) {
@@ -327,10 +326,10 @@ public class ProxyServer extends JFrame {
         }
 
         /**
-         * å°†æ•°æ®ä»è¾“å…¥æµè½¬å‘åˆ°è¾“å‡ºæµ ä¸­ã€‚
+         * ½«Êı¾İ´ÓÊäÈëÁ÷×ª·¢µ½Êä³öÁ÷ ÖĞ¡£
          *
-         * @param input  è¾“å…¥æµï¼Œä»ä¸­è¯»å–æ•°æ®
-         * @param output è¾“å‡ºæµï¼Œå°†æ•°æ®å†™å…¥å…¶ä¸­
+         * @param input  ÊäÈëÁ÷£¬´ÓÖĞ¶ÁÈ¡Êı¾İ
+         * @param output Êä³öÁ÷£¬½«Êı¾İĞ´ÈëÆäÖĞ
          */
         private void forwardData(InputStream input, OutputStream output) {
             byte[] buffer = new byte[1024];
